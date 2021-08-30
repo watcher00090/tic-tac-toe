@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"strings"
 )
 
@@ -83,6 +84,29 @@ func toDisplayString(s string) string {
 	}
 }
 
+func clearBoard() {
+	board["tl"] = ""
+	board["tc"] = ""
+	board["tr"] = ""
+	board["cl"] = ""
+	board["cc"] = ""
+	board["cr"] = ""
+	board["bl"] = ""
+	board["bc"] = ""
+	board["br"] = ""
+}
+
+func hasWon(board map[string]string, token string) bool {
+	return board["tl"] == token && board["tc"] == token && board["tr"] == token ||
+		board["cl"] == token && board["cc"] == token && board["cr"] == token ||
+		board["bl"] == token && board["bc"] == token && board["br"] == token ||
+		board["tl"] == token && board["cc"] == token && board["br"] == token ||
+		board["tr"] == token && board["cc"] == token && board["bl"] == token ||
+		board["tl"] == token && board["cl"] == token && board["bl"] == token ||
+		board["tc"] == token && board["cc"] == token && board["bc"] == token ||
+		board["tr"] == token && board["cr"] == token && board["br"] == token
+}
+
 func printBoard(board map[string]string) {
 	fmt.Printf("\n %s ┆ %s ┆ %s \n"+
 		"-----------\n"+
@@ -106,6 +130,7 @@ func main() {
 	var token = "X"
 	var move string
 	var move_orig string
+	numMoves := 0
 
 	for true {
 		fmt.Print(fmt.Sprintf("Player %s (%s) to move: ", player, token))
@@ -144,15 +169,44 @@ func main() {
 			if board[move] != "" {
 				fmt.Println("Error, the square you attempted to move to is already occupied! Please choose a different square and try again.")
 				continue
-			} else {
-				board[move] = token
-				fmt.Print(fmt.Sprintf("Player %s (%s) moved to: %s\n", player, token, move_orig))
 			}
+
+			board[move] = token
+			numMoves++
+			fmt.Print(fmt.Sprintf("Player %s (%s) moved to: %s\n", player, token, move_orig))
 
 			printBoard(board)
 
-			player = changePlayer(player)
-			token = changeToken(token)
+			has_won := hasWon(board, token)
+
+			if has_won || (!has_won && numMoves == 9) {
+				var input string
+				if has_won {
+					fmt.Printf("Player %s (%s) has won the game!\n", player, token)
+				} else {
+					fmt.Printf("Draw!\n")
+				}
+				for true {
+					fmt.Print("Type 'n' to start a new game, or 'q' or 'quit' to quit: ")
+					fmt.Scanln(&input)
+					input = strings.ToLower(input)
+					if input == "q" || input == "exit" || input == "quit" {
+						os.Exit(0)
+					} else if input == "n" || input == "new game" || input == "new" {
+						fmt.Printf("Starting new game....")
+						clearBoard()
+						player = "one"
+						token = "X"
+						numMoves = 0
+						break
+					} else {
+						fmt.Println("Invalid instruction, please try again...")
+					}
+				}
+			} else {
+				player = changePlayer(player)
+				token = changeToken(token)
+			}
 		}
 	}
 }
