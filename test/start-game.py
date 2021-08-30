@@ -1,14 +1,28 @@
 import subprocess
 import os
 import time
+import signal
 
-proc = subprocess.Popen(["/home/ubuntu/tic-tac-toe/bin/tic-tac-toe"], shell=True)
-time.sleep(3)
-pid = proc.pid
+
+if os.path.exists("/tmp/tic-tac-toe-input"):
+    os.remove("/tmp/tic-tac-toe-input")
+
+if os.path.exists("/tmp/tic-tac-toe-input-pid"):
+    file = open('/tmp/tic-tac-toe-input-pid', 'r')
+    lines = file.readLines()
+    pid = lines[0]
+    file.close()
+    os.kill(pid, signal.SIGTERM) #or signal.SIGKILL 
+    os.remove("/tmp/tic-tac-toe-input-pid")
 
 os.system("mkfifo /tmp/tic-tac-toe-input")
-os.system("cat > /tmp/tic-tac-toe-input")
-os.system("echo $! > /tmp/tic-tac-toe-input-pid")
-os.system("cat /tmp/tic-tac-toe-input | home/ubuntu/tic-tac-toe/bin/tic-tac-toe")
+time.sleep(5)
 
-time.sleep(3)
+pid = os.Popen("cat > /tmp/tic-tac-toe-input").pid
+time.sleep(5)
+
+os.system(f"echo {pid} > /tmp/tic-tac-toe-input-pid")
+time.sleep(5)
+
+os.system("cat /tmp/tic-tac-toe-input | /home/ubuntu/tic-tac-toe/bin/tic-tac-toe")
+time.sleep(5)
