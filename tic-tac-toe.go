@@ -193,7 +193,7 @@ func main() {
 					if input == "q" || input == "exit" || input == "quit" {
 						os.Exit(0)
 					} else if input == "n" || input == "new game" || input == "new" {
-						fmt.Printf("Starting new game....")
+						fmt.Println("Starting new game....")
 						clearBoard()
 						player = "one"
 						token = "X"
