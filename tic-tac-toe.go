@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"bufio"
 )
 
 var boardbase = "   ┆   ┆   " +
@@ -131,11 +132,20 @@ func main() {
 	var move string
 	var move_orig string
 	numMoves := 0
+	reader := bufio.NewReader(os.Stdin)
+	var err error
+	var in []byte
+	var input string
 
 	for true {
 		fmt.Print(fmt.Sprintf("Player %s (%s) to move: ", player, token))
-		fmt.Scanln(&move)
+		//fmt.Scanln(&move)
+		in, _, err =  reader.ReadLine()
+		if err != nil {
+			fmt.Println("ERROR: ReadLine returned the error: " + err.Error())
+		}
 
+		move = string(in)
 		move_orig = move
 		move = niceify(move)
 
@@ -180,7 +190,6 @@ func main() {
 			has_won := hasWon(board, token)
 
 			if has_won || (!has_won && numMoves == 9) {
-				var input string
 				if has_won {
 					fmt.Printf("Player %s (%s) has won the game!\n", player, token)
 				} else {
@@ -188,8 +197,13 @@ func main() {
 				}
 				for true {
 					fmt.Print("Type 'n' to start a new game, or 'q' or 'quit' to quit: ")
-					fmt.Scanln(&input)
+					in, _, err =  reader.ReadLine()
+					if err != nil {
+						panic("ERROR: ReadLine returned the error: " + err.Error())
+					}
+					input = string(in)
 					input = strings.ToLower(input)
+
 					if input == "q" || input == "exit" || input == "quit" {
 						os.Exit(0)
 					} else if input == "n" || input == "new game" || input == "new" {
