@@ -31,7 +31,7 @@ if ret != 0:
 if pid == 0: #child
     print("child process executing...")
 
-    ret = os.system("bash -c \"cat /tmp/tic-tac-toe-pipe | /home/ubuntu/tic-tac-toe/bin/tic-tac-toe &> /tmp/errors.log\"")
+    ret = os.system("bash -c \"cat /tmp/tic-tac-toe-pipe | /home/ubuntu/tic-tac-toe/bin/tic-tac-toe  2> /tmp/errors.log > /tmp/errors.log\"")
     if ret != 0:
         sys.exit(f"ERROR: Attempting to run the program fed by the pipe produced the error {ret}")
 
@@ -39,11 +39,13 @@ else: #parent
     print("parent process executing...")
     print("Attempting to drive the tic-tac-toe game through the parent process...")
 
-    ret = os.system("bash -c 'echo -e \"tl\\nmi\\ntc\\ncl\\ntr\\nquit\" >> /tmp/tic-tac-toe-pipe'")
+    ret = os.system("bash -c 'echo -e \"tl\\nmi\\ntc\\ncl\\ntr\\nq\" >> /tmp/tic-tac-toe-pipe'")
     if ret != 0:
         sys.exit(f"ERROR: Attempting to write a move to the tic-tac-toe game produced the error {ret}")
 
     print("command sequence fed into the pipe successfully!")
+
+    time.sleep(5)
 
     # wait for the child process to complete
     status = os.wait()
