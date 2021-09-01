@@ -205,6 +205,7 @@ func main() {
 					input = strings.ToLower(input)
 
 					if input == "q" || input == "exit" || input == "quit" {
+						fmt.Println("Exiting the game...")
 						os.Exit(0)
 					} else if input == "n" || input == "new game" || input == "new" {
 						fmt.Println("Starting new game....")
