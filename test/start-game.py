@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 from copy import deepcopy
 
-ingameinputRE = r"Player (one|two) \((X|O)\) to move\: Player (one|two) \((X|O)\) moved to\: (\w{2})"
+ingameinputRE = r"Player (one|two) \((X|O)\) to move\: (.+)$"
 endgameinputRE = r"Type 'n' to start a new game, or 'q' or 'quit' to quit\: (.+)$"
 
 if Path("/tmp/tic-tac-toe-pipe").exists():
@@ -52,7 +52,7 @@ else: #parent
         secondresult  = re.match(endgameinputRE, line)
         if result != None:
             linesCopy.append(f"Player {result.group(1)} ({result.group(2)}) to move:\n")
-            linesCopy.append(f"Player ({result.group(3)}) ({result.group(4)}) moved to: {result.group(5)}\n")
+            linesCopy.append(f"{result.group(3)}\n")
         elif secondresult != None:
             linesCopy.append(f"Type 'n' to start a new game, or 'q' or 'quit' to quit:\n")
             linesCopy.append(f"{secondresult.group(1)}\n")
