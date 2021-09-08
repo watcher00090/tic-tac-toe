@@ -151,10 +151,11 @@ func main() {
 	for true {
 		//fmt.Scanln(&move)
 		in, err = reader.ReadString('\n')
+		//fmt.Printf("in = %s.\n", in)
 		in = strings.Trim(in, "\n\r\t ")
 		if err != nil {
 			if strings.ToUpper(err.Error()) == "EOF" {
-				time.Sleep(5)
+				time.Sleep(5 * time.Second)
 				continue
 			} else {
 				fmt.Println("ERROR: ReadLine returned the error: " + err.Error())
@@ -165,7 +166,7 @@ func main() {
 			panic("ERROR, exactly one of expectingMove and continueOrExit should be true!")
 		}
 
-		fmt.Printf("in = %s.\n", in)
+		// fmt.Printf("in = %s.\n", in)
 
 		if expectingMove {
 
