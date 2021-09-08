@@ -143,15 +143,19 @@ func main() {
 	var err error
 	var in string
 	var input string
+	var input_prompt_msg string
+
 	var expectingMove = true // when the user can make a move or submit a command, exactly one of the following is true: expectingMove, continueOrExit
 	var continueOrExit = false
-	var input_prompt_msg string
+	var alreadyPrintedPrompt = false
 
 
 	input_prompt_msg = fmt.Sprintf("Player %s (%s) to move: ", player, token)
 
 	for true {
-		fmt.Print(input_prompt_msg)
+		if !alreadyPrintedPrompt {
+			fmt.Print(input_prompt_msg)
+		}
 
 		in, err = reader.ReadString('\n')
 		//fmt.Printf("in = %s.\n", in)
@@ -159,9 +163,10 @@ func main() {
 		if err != nil {
 			if strings.ToUpper(err.Error()) == "EOF" {
 				time.Sleep(5 * time.Second)
+				alreadyPrintedPrompt = true
 				continue
 			} else {
-				fmt.Println("ERROR: ReadLine returned the error: " + err.Error())
+				panic(fmt.Sprintf("ERROR: ReadLine returned the error: %s\n", err.Error()))
 			}
 		}
 
@@ -188,8 +193,10 @@ func main() {
 					"bl, lb (bottom left)\n" +
 					"bc, cb (bottom center)\n" +
 					"br, rb (bottom right)\n")
+				alreadyPrintedPrompt = false
 			} else if move == "board" {
 				printBoard(board)
+				alreadyPrintedPrompt = false
 			} else if !isValidMove(move) {
 				fmt.Println("Error, invalid move command. Please try again.")
 				fmt.Println("\nMove commands: \n" +
@@ -202,10 +209,12 @@ func main() {
 					"bl, lb (bottom left)\n" +
 					"bc, cb (bottom center)\n" +
 					"br, rb (bottom right)\n")
+				alreadyPrintedPrompt = false
 			} else {
 
 				if board[move] != "" {
 					fmt.Println("Error, the square you attempted to move to is already occupied! Please choose a different square and try again.")
+					alreadyPrintedPrompt = false
 					continue
 				}
 
@@ -226,11 +235,13 @@ func main() {
 						fmt.Printf("Draw!\n")
 					}
 					input_prompt_msg = "Type 'n' to start a new game, or 'q' or 'quit' to quit: "
+					alreadyPrintedPrompt = false
 				} else {
 					player = changePlayer(player)
 					token = changeToken(token)
 
 					input_prompt_msg = fmt.Sprintf("Player %s (%s) to move: ", player, token)
+					alreadyPrintedPrompt = false
 				}
 			}
 
@@ -259,6 +270,7 @@ func main() {
 				expectingMove = true
 				continueOrExit = false
 				input_prompt_msg = fmt.Sprintf("Player %s (%s) to move: ", player, token)
+				alreadyPrintedPrompt = false
 			} else {
 				fmt.Println("Invalid instruction, please try again...")
 			}
