@@ -12,11 +12,11 @@ import (
 //	"bytes"
 )
 
-var boardbase = "   ┆   ┆   " +
+var boardbase = "   \u2506   \u2506   " +
 	"-----------" +
-	"   ┆   ┆   " +
+	"   \u2506   \u2506   " +
 	"-----------" +
-	"   ┆   ┆   "
+	"   \u2506   \u2506   "
 
 var board map[string]string = map[string]string{
 	"tl": "",

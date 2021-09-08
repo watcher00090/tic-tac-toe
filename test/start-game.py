@@ -3,29 +3,19 @@ import os
 import time
 import signal
 import sys
+import re
+from pathlib import Path
+from copy import deepcopy
 
+ingameinputRE = r"Player (one|two) \((X|O)\) to move\: Player (one|two) \((X|O)\) moved to\: (\w{2})"
+endgameinputRE = r"Type 'n' to start a new game, or 'q' or 'quit' to quit\: (.+)$"
 
-os.system("rm /tmp/tic-tac-toe-pipe")
-os.system("rm /tmp/tic-tac-toe-pipe-helper-pid")
-
-#if os.path.exists("/tmp/tic-tac-toe-pipe-helper-pid"):
-#    file = open('/tmp/tic-tac-toe-pipe-helper-pid', 'r')
-#    lines = file.readLines()
-#    pid = lines[0]
-#    file.close()
-#    os.kill(pid, signal.SIGTERM) #or signal.SIGKILL 
-#    os.remove("/tmp/tic-tac-toe-pipe-helper-pid")
-
-#os.system("touch /tmp/tic-tac-toe-pipe-helper-pid")
+if Path("/tmp/tic-tac-toe-pipe").exists():
+    os.system("rm /tmp/tic-tac-toe-pipe")
 
 ret = os.system("bash -c \"mkfifo /tmp/tic-tac-toe-pipe\"")
 if ret != 0:
     sys.exit(f"ERROR: Attempting to make the FIFO returned the error {ret}")
-
-#ret = os.system("bash -c \"nohup cat > /tmp/tic-tac-toe-pipe-helper-pid 1> /tmp/stdout.log 2> /tmp/stderr.log &\"")
-#if ret != 0:
-#    sys.exit(f"ERROR: Attempting to create a dummy writer returned the error {ret}")
-
 
 (pid, fd) = os.forkpty()
 if pid == 0: #child
@@ -36,36 +26,40 @@ if pid == 0: #child
         sys.exit(f"ERROR: Attempting to run the program fed by the pipe produced the error {ret}")
 
 else: #parent
-    print("parent process executing...")
+    print("Parent process executing...")
     print("Attempting to drive the tic-tac-toe game through the parent process...")
 
     ret = os.system("bash -c 'echo -e \"tl\\nmi\\ntc\\ncl\\ntr\\nq\" >> /tmp/tic-tac-toe-pipe'")
     if ret != 0:
         sys.exit(f"ERROR: Attempting to write a move to the tic-tac-toe game produced the error {ret}")
 
-    print("command sequence fed into the pipe successfully!")
+    print("Command sequence fed into the pipe successfully!")
 
     time.sleep(5)
 
     # wait for the child process to complete
     status = os.wait()
 
-    # converts to the command: bash -c 'echo -e "tl\nmi\ntc\ncl\ntr" >> /tmp/tic-tac-toe-pipe'
-#    ret = os.system("bash -c 'echo -e \"tl\\nmi\\ntc\\ncl\\ntr\" >> /tmp/tic-tac-toe-pipe'")
-#    if ret != 0:
-#        sys.exit(f"ERROR: Attempting to write a move to the tic-tac-toe game produced the error {ret}")
+    f = open("/tmp/errors.log")
+    
+    lines = f.readlines()
 
-#    print("Move sequence fed in successfully!")
+    linesCopy = []
 
-    # while True:
-    #    time.sleep(5)
-
-    #ret = os.system("bash -c \"echo tr >> /tmp/tic-tac-toe-pipe\"")
-    #if ret != 0:
-    #    sys.exit(f"ERROR: Attempting to write a move to the tic-tac-toe game produced the error {ret}")
-    #time.sleep(3)
-    #print("Second move fed in")
-
-    #print("removing the pipe...")
-    #os.system("rm /tmp/tic-tac-toe-pipe")
-    #print("the pipe has been removed...")
+    for line in lines:
+        #print("Line{}: {}".format(count, line.rstrip("\n")))
+        result        = re.match(ingameinputRE, line)
+        secondresult  = re.match(endgameinputRE, line)
+        if result != None:
+            linesCopy.append(f"Player {result.group(1)} ({result.group(2)}) to move:\n")
+            linesCopy.append(f"Player ({result.group(3)}) ({result.group(4)}) moved to: {result.group(5)}\n")
+        elif secondresult != None:
+            linesCopy.append(f"Type 'n' to start a new game, or 'q' or 'quit' to quit:\n")
+            linesCopy.append(f"{secondresult.group(1)}\n")
+        else:
+            linesCopy.append(deepcopy(line))
+        
+    num = 1
+    for line in linesCopy:
+        print("Line {}: {}".format(num, line.rstrip("\n")))
+        num += 1
