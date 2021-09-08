@@ -1,15 +1,16 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"strings"
-	"bufio"
-//	"time"
+
+	//	"time"
 	"os/exec"
-//	"os/signal"
-//	"syscall"
-//	"bytes"
+	//	"os/signal"
+	//	"syscall"
+	//	"bytes"
 )
 
 var boardbase = "   ┆   ┆   " +
@@ -139,15 +140,17 @@ func main() {
 	numMoves := 0
 	reader := bufio.NewReader(os.Stdin)
 	var err error
-	var in []byte
+	var in string
 	var input string
 	var expectingMove = true // when the user can make a move or submit a command, exactly one of the following is true: expectingMove, continueOrExit
 	var continueOrExit = false
 
 	fmt.Print(fmt.Sprintf("Player %s (%s) to move: ", player, token))
+
 	for true {
 		//fmt.Scanln(&move)
-		in, _, err =  reader.ReadLine()
+		in, err = reader.ReadString('\n')
+		in = strings.Trim(in, "\n\r\t ")
 		if err != nil {
 			fmt.Println("ERROR: ReadLine returned the error: " + err.Error())
 		}
@@ -156,9 +159,11 @@ func main() {
 			panic("ERROR, exactly one of expectingMove and continueOrExit should be true!")
 		}
 
+		fmt.Printf("in = %s.\n", in)
+
 		if expectingMove {
 
-			move = string(in)
+			move = in
 			move_orig = move
 			move = niceify(move)
 
@@ -222,7 +227,7 @@ func main() {
 
 		} else if continueOrExit {
 
-			input = string(in)
+			input = in
 			input = strings.ToLower(input)
 
 			if input == "q" || input == "exit" || input == "quit" {
