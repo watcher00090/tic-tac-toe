@@ -145,11 +145,14 @@ func main() {
 	var input string
 	var expectingMove = true // when the user can make a move or submit a command, exactly one of the following is true: expectingMove, continueOrExit
 	var continueOrExit = false
+	var input_prompt_msg string
 
-	fmt.Print(fmt.Sprintf("Player %s (%s) to move: ", player, token))
+
+	input_prompt_msg = fmt.Sprintf("Player %s (%s) to move: ", player, token)
 
 	for true {
-		//fmt.Scanln(&move)
+		fmt.Print(input_prompt_msg)
+
 		in, err = reader.ReadString('\n')
 		//fmt.Printf("in = %s.\n", in)
 		in = strings.Trim(in, "\n\r\t ")
@@ -203,7 +206,6 @@ func main() {
 
 				if board[move] != "" {
 					fmt.Println("Error, the square you attempted to move to is already occupied! Please choose a different square and try again.")
-					fmt.Print(fmt.Sprintf("Player %s (%s) to move: ", player, token))
 					continue
 				}
 
@@ -223,12 +225,12 @@ func main() {
 					} else {
 						fmt.Printf("Draw!\n")
 					}
-					fmt.Print("Type 'n' to start a new game, or 'q' or 'quit' to quit: ")
+					input_prompt_msg = "Type 'n' to start a new game, or 'q' or 'quit' to quit: "
 				} else {
 					player = changePlayer(player)
 					token = changeToken(token)
 
-					fmt.Print(fmt.Sprintf("Player %s (%s) to move: ", player, token))
+					input_prompt_msg = fmt.Sprintf("Player %s (%s) to move: ", player, token)
 				}
 			}
 
@@ -256,7 +258,7 @@ func main() {
 				numMoves = 0
 				expectingMove = true
 				continueOrExit = false
-				fmt.Print(fmt.Sprintf("Player %s (%s) to move: ", player, token))
+				input_prompt_msg = fmt.Sprintf("Player %s (%s) to move: ", player, token)
 			} else {
 				fmt.Println("Invalid instruction, please try again...")
 			}
