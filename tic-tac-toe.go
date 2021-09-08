@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	//	"time"
 	"os/exec"
@@ -152,7 +153,12 @@ func main() {
 		in, err = reader.ReadString('\n')
 		in = strings.Trim(in, "\n\r\t ")
 		if err != nil {
-			fmt.Println("ERROR: ReadLine returned the error: " + err.Error())
+			if strings.ToUpper(err.Error()) == "EOF" {
+				time.Sleep(5)
+				continue
+			} else {
+				fmt.Println("ERROR: ReadLine returned the error: " + err.Error())
+			}
 		}
 
 		if (expectingMove && continueOrExit) || (!expectingMove && !continueOrExit) {
