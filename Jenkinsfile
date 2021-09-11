@@ -23,13 +23,14 @@ pipeline {
       steps {
         script {
           try {
-            String dirPath = "/home/ubuntu/"
-            File f = new File(dirPath);
-            String[] pathnames = f.list();
-            for (int i = 0; i < pathnames.length; i++) {
-              if (pathnames[i] != "driver.py") {
-                echo "About to run test for ${pathnames[i]}..."
-                // sh 'docker run build-$BUILD_ID-artifacts bash -c "python "'
+            File codeDirectory = new File("$WORKSPACE/test");
+            File[] listOfFiles = codeDirectory.listFiles();
+            for (int i = 0; i < listOfFiles.length; i++) {
+              if (listOfFiles[i].isFile()) {
+                if (listOfFiles[i].getName() != "driver.py") {
+                  echo "About to run test for ${pathnames[i]}..."
+                  // sh 'docker run build-$BUILD_ID-artifacts bash -c "python "'
+                }
               }
             }
           } catch (e) {
