@@ -23,7 +23,8 @@ pipeline {
       steps {
         env code_path = 
         script {
-          String dirPath = "$WORKSPACE";
+          String dirPath = "/home/ubuntu"
+          //String dirPath = "$WORKSPACE";
           echo "dirPath = ${dirPath}"
           File f = new File(dirPath);
           String[] pathnames = f.list();
