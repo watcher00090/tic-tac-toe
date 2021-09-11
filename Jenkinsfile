@@ -29,9 +29,10 @@ pipeline {
             dir.eachFileRecurse (FileType.FILES) { file ->
               list << file
             }
+            def files = list as String[]
             for (int i = 0; i < list.length; i++) {
-                if (list[i].name != "driver.py") {
-                  echo "About to run test for ${list[i].name}..."
+                if (files[i] != "driver.py") {
+                  echo "About to run test for ${files[i]}..."
                   // sh 'docker run build-$BUILD_ID-artifacts bash -c "python "'
                 }
             }
