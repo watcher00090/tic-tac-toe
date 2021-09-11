@@ -3,12 +3,6 @@ pipeline {
   options {
     timestamps()
   }
-  environment {
-    GIT_BRANCH = """${sh(
-      returnStdout: true,
-      script: 'git branch --show-current'
-    ).trim()}"""
-  }
   stages {
     stage('Output Info') {
         steps {
@@ -29,7 +23,7 @@ pipeline {
       steps {
         env code_path = 
         script {
-          String dirPath = "$WORKSPACE/tic-tac-toe_$GIT_BRANCH"
+          String dirPath = "$WORKSPACE"
           echo "dirPath = ${dirPath}"
           File f = new File(dirPath);
           String[] pathnames = f.list();
