@@ -23,8 +23,8 @@ pipeline {
         script {
           String dirPath = "/home/ubuntu/tic-tac-toe/test/"
           File f = new File(dirPath);
-          pathnames = f.list();
-          for (int i = 0; i < pathnames.len(); i++) {
+          String[] pathnames = f.list();
+          for (int i = 0; i < pathnames.length; i++) {
             if (pathnames[i] != "driver.py") {
               echo "About to run test ${i}..."
               // sh 'docker run build-$BUILD_ID-artifacts bash -c "python "'
