@@ -21,7 +21,6 @@ pipeline {
 
     stage('Test') {
       steps {
-        env code_path = 
         script {
           try {
             String dirPath = "$WORKSPACE"
