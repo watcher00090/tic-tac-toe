@@ -30,7 +30,7 @@ pipeline {
         env code_path = 
         script {
           String dirPath = '$WORKSPACE/tic-tac-toe_$GIT_BRANCH'
-          System.out.println("dirPath = " + dirPath)
+          echo "dirPath = ${dirPath}"
           File f = new File(dirPath);
           String[] pathnames = f.list();
           for (int i = 0; i < pathnames.length; i++) {
