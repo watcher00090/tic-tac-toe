@@ -23,7 +23,7 @@ pipeline {
       steps {
         script {
           try {
-            File codeDirectory = new File(env.WORKSPACE + "/test");
+            File codeDirectory = new File(env.WORKSPACE + "/test/");
             codeDirectory.eachFile({ file -> 
                 if (file[i].name != "driver.py") {
                   echo "About to run test for ${pathnames[i]}..."
