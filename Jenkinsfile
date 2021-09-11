@@ -27,7 +27,7 @@ pipeline {
             //String dirPath = "$WORKSPACE";
             echo "dirPath = ${dirPath}"
             File f = new File(dirPath);
-            sh 'ls /home/ubuntu/workspace/tic-tac-toe_master'
+            sh 'ls /home/ubuntu/workspace/tic-tac-toe_master/test'
             String[] pathnames = f.list();
             for (int i = 0; i < pathnames.length; i++) {
               if (pathnames[i] != "driver.py") {
