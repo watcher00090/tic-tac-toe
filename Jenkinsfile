@@ -35,7 +35,10 @@ pipeline {
               }
             }
           } catch (e) {
-            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            String sStackTrace = sw.toString(); // stack trace as a string
+            echo "${sStackTrace}"
           }
         }
 
