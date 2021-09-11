@@ -24,15 +24,12 @@ pipeline {
         script {
           try {
             File codeDirectory = new File(env.WORKSPACE + "/test");
-            File[] listOfFiles = codeDirectory.listFiles();
-            for (int i = 0; i < listOfFiles.length; i++) {
-              if (listOfFiles[i].isFile()) {
-                if (listOfFiles[i].getName() != "driver.py") {
+            codeDirectory.eachFile({ file -> 
+                if (file[i].name != "driver.py") {
                   echo "About to run test for ${pathnames[i]}..."
                   // sh 'docker run build-$BUILD_ID-artifacts bash -c "python "'
                 }
-              }
-            }
+            })
           } catch (e) {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
