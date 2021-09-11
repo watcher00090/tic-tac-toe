@@ -3,9 +3,6 @@ pipeline {
   options { 
     timestamps() 
   }
-  environment {
-    TEST_NUM = '0'
-  }
   stages {
     stage('Output Info') {
       steps {
@@ -16,7 +13,7 @@ pipeline {
       steps {
         echo "Building the project..." 
         
-        sh 'docker build -t build-$BUILD_ID-test-$TEST_NUM:latest .'
+        sh 'docker build -t build-$BUILD_ID:latest .'
         sh 'docker image ls'
       }
     }
