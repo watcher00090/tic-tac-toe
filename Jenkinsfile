@@ -30,7 +30,7 @@ pipeline {
           String[] pathnames = f.list();
           for (int i = 0; i < pathnames.length; i++) {
             if (pathnames[i] != "driver.py") {
-              echo "About to run test ${i}..."
+              echo "About to run test for ${pathnames[i]}..."
               // sh 'docker run build-$BUILD_ID-artifacts bash -c "python "'
             }
           }
