@@ -23,13 +23,18 @@ pipeline {
       steps {
         script {
           try {
-            File codeDirectory = new File(env.WORKSPACE + "/test/");
-            codeDirectory.eachFile({ file -> 
-                if (file[i].name != "driver.py") {
-                  echo "About to run test for ${pathnames[i]}..."
+            import groovy.io.FileType
+            def list = []
+            def dir = new File(env.WORKSPACE + "/test/")
+            dir.eachFileRecurse (FileType.FILES) { file ->
+              list << file
+            }
+            for (int i = 0; i < list.length; i++) {
+                if (list[i].name != "driver.py") {
+                  echo "About to run test for ${list[i].name}..."
                   // sh 'docker run build-$BUILD_ID-artifacts bash -c "python "'
                 }
-            })
+            }
           } catch (e) {
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
