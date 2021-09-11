@@ -25,7 +25,7 @@ pipeline {
           File f = new File(dirPath);
           pathnames = f.list();
           for (int i = 0; i < pathnames.len(); i++) {
-            if pathnames[i] != "driver.py" {
+            if (pathnames[i] != "driver.py") {
               echo "About to run test ${i}..."
               // sh 'docker run build-$BUILD_ID-artifacts bash -c "python "'
             }
