@@ -15,7 +15,7 @@ pipeline {
         
         sh 'docker build -t build-$BUILD_ID:latest .'
         sh 'docker image ls'
-        sh 'docker volume create --driver local --name build-$BUILD_ID-artifacts --opt device=:/data/docker-volume-store/build-$BUILD_ID-artifacts'
+        sh 'docker volume create --driver local --type ext4 --name build-$BUILD_ID-artifacts --opt device=:/data/docker-volume-store/build-$BUILD_ID-artifacts'
       }
     }
     stage('Test') {
