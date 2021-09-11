@@ -13,18 +13,13 @@ pipeline {
       }
     }
     stage('Build') {
-      steps {
-        environment {
-            TEST_NUM = """${sh(
-                returnStdout: true,
-                script: 'echo $(($TEST_NUM+1))'
-            ).trim()}""" 
+      withEnv['TEST_NUM=$(($TEST_NUM+1))'] {
+        steps {
+          echo "Building the project..." 
+          
+          sh 'docker build -t build-$BUILD_ID-test-$TEST_NUM:latest .'
+          sh "docker image ls"
         }
-
-        echo "Building the project..." 
-        
-        sh "docker build -t build-$BUILD_ID-test-$TEST_NUM:latest ."
-        sh "docker image ls"
       }
     }
   }
