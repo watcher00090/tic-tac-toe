@@ -23,7 +23,7 @@ pipeline {
       steps {
         script {
           try {
-            String dirPath = "/home/ubuntu/workspace/tic-tac-toe_master/"
+            String dirPath = "/home/ubuntu/"
             File f = new File(dirPath);
             String[] pathnames = f.list();
             for (int i = 0; i < pathnames.length; i++) {
