@@ -23,16 +23,20 @@ pipeline {
       steps {
         env code_path = 
         script {
-          String dirPath = "$WORKSPACE"
-          //String dirPath = "$WORKSPACE";
-          echo "dirPath = ${dirPath}"
-          File f = new File(dirPath);
-          String[] pathnames = f.list();
-          for (int i = 0; i < pathnames.length; i++) {
-            if (pathnames[i] != "driver.py") {
-              echo "About to run test for ${pathnames[i]}..."
-              // sh 'docker run build-$BUILD_ID-artifacts bash -c "python "'
+          try {
+            String dirPath = "$WORKSPACE"
+            //String dirPath = "$WORKSPACE";
+            echo "dirPath = ${dirPath}"
+            File f = new File(dirPath);
+            String[] pathnames = f.list();
+            for (int i = 0; i < pathnames.length; i++) {
+              if (pathnames[i] != "driver.py") {
+                echo "About to run test for ${pathnames[i]}..."
+                // sh 'docker run build-$BUILD_ID-artifacts bash -c "python "'
+              }
             }
+          } catch (e) {
+            e.printStackTrace();
           }
         }
 
