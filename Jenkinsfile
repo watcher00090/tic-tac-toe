@@ -23,7 +23,7 @@ pipeline {
       steps {
         script {
           try {
-            File codeDirectory = new File("$WORKSPACE/test");
+            File codeDirectory = new File("${env.WORKSPACE}/test");
             File[] listOfFiles = codeDirectory.listFiles();
             for (int i = 0; i < listOfFiles.length; i++) {
               if (listOfFiles[i].isFile()) {
