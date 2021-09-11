@@ -11,11 +11,7 @@ pipeline {
 
         stage('Determine tests to run') {
           steps {
-            sh '''script {
-  sh \'mkdir -p /tmp/build-$BUILD_ID-source-code-garbage-bag\'
-  sh \'git clone https://github.com/watcher00090/tic-tac-toe /tmp/build-$BUILD_ID-source-code-garbage-bag\'
-  sh \'ls -l /tmp/build-$BUILD_ID-source-code-garbage-bag\'
-}'''
+            sh 'ls test'
             }
           }
 
