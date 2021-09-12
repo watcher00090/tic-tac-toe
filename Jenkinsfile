@@ -23,7 +23,7 @@ pipeline {
       steps {
         script {
           try {
-            File folder = "test"
+            File folder = env.WORKSPACE + "/test"
             for (final File fileEntry : folder.listFiles()) {
               if (fileEntry.isDirectory()) {
                   echo "${fileEntry.getName()}"
