@@ -22,24 +22,13 @@ pipeline {
     stage('Test') {
       steps {
         script {
-          try {
-            File folder = "/home/ubuntu/tmp_dir/"
-            for (final File fileEntry : folder.listFiles()) {
-              if (fileEntry.isDirectory()) {
-                  echo "${fileEntry.getName()}"
-              } else {
-                  echo "${fileEntry.getName()}"
-              }
-            }
-          } catch (e) {
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            e.printStackTrace(pw);
-            String sStackTrace = sw.toString(); // stack trace as a string
-            echo "${sStackTrace}"
+          def files = findFiles(glob: 'test/*.*')
+          for (int i = 0; i < files.length; i++) {
+            echo "Found ${files[i].name}"
           }
         }
       }
     }
+
   }
 }
