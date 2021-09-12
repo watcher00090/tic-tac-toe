@@ -26,7 +26,7 @@ pipeline {
             File folder = env.WORKSPACE + "/test/"
             for (final File fileEntry : folder.listFiles()) {
               if (fileEntry.isDirectory()) {
-                  listFilesForFolder(fileEntry);
+                  echo "${fileEntry.getName()}"
               } else {
                   echo "${fileEntry.getName()}"
               }
