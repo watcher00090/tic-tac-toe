@@ -28,7 +28,7 @@ pipeline {
               if (fileEntry.isDirectory()) {
                   listFilesForFolder(fileEntry);
               } else {
-                  System.out.println(fileEntry.getName());
+                  echo "${fileEntry.getName()}"
               }
             }
           } catch (e) {
