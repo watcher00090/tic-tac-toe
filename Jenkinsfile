@@ -23,18 +23,13 @@ pipeline {
       steps {
         script {
           try {
-            import groovy.io.FileType
-            def list = []
-            def dir = new File(env.WORKSPACE + "/test/")
-            dir.eachFileRecurse (FileType.FILES) { file ->
-              list << file
-            }
-            def files = list as String[]
-            for (int i = 0; i < list.length; i++) {
-                if (files[i] != "driver.py") {
-                  echo "About to run test for ${files[i]}..."
-                  // sh 'docker run build-$BUILD_ID-artifacts bash -c "python "'
-                }
+            File folder = env.WORKSPACE + "/test/"
+            for (final File fileEntry : folder.listFiles()) {
+              if (fileEntry.isDirectory()) {
+                  listFilesForFolder(fileEntry);
+              } else {
+                  System.out.println(fileEntry.getName());
+              }
             }
           } catch (e) {
             StringWriter sw = new StringWriter();
