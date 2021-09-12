@@ -23,7 +23,7 @@ pipeline {
       steps {
         script {
           try {
-            File folder = env.WORKSPACE + "/test"
+            File folder = "/home/ubuntu/"
             for (final File fileEntry : folder.listFiles()) {
               if (fileEntry.isDirectory()) {
                   echo "${fileEntry.getName()}"
