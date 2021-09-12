@@ -23,7 +23,7 @@ pipeline {
       steps {
         script {
           try {
-            File folder = "/home/ubuntu/"
+            File folder = "/home/ubuntu/tmp_dir/"
             for (final File fileEntry : folder.listFiles()) {
               if (fileEntry.isDirectory()) {
                   echo "${fileEntry.getName()}"
