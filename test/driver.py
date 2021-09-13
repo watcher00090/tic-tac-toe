@@ -29,7 +29,7 @@ def start_new_test() -> int:
         os.system(f"ERROR: {ARTIFACTS_DATAPATH}/errors_formatted.log already exists! Exiting the script.")
         sys.exit()
 
-    os.system(f"touch ${ARTIFACTS_DATAPATH}/errors_formatted.log")
+    os.system(f"touch {ARTIFACTS_DATAPATH}/errors_formatted.log")
 
     ret = os.system(f"bash -c \"mkfifo {ARTIFACTS_DATAPATH}/tic-tac-toe-pipe\"")
     if ret != 0:
