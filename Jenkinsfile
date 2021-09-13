@@ -22,10 +22,13 @@ pipeline {
         sh "docker build -t tic-tac-toe-test:build-$BUILD_ID ."
         sh 'docker image ls'
         sh "docker volume create --name build-$BUILD_ID-artifacts"
-        VOLUME_MOUNT_PATH = sh(
-          returnStdout: true,
-          script: "docker volume inspect build-$BUILD_ID-artifacts | jq '.[0] | .Mountpoint' | sed -e 's/^"//' -e 's/"$//'"
-        ).trim()      
+        script {
+          env.VOLUME_MOUNT_PATH = sh(
+            returnStdout: true,
+            script: "docker volume inspect build-$BUILD_ID-artifacts | jq '.[0] | .Mountpoint' | sed -e 's/^"//' -e 's/"$//'"
+          ).trim()      
+        }
+        echo "Docker volume data path = ${VOLUME_MOUNT_PATH}"
       }
     }
 
