@@ -24,7 +24,7 @@ pipeline {
         script {
           def files = findFiles(glob: 'test/*.*')
           for (int i = 0; i < files.length; i++) {
-            echo "Found ${files[i].name}"
+            sh "python ${files[i].name}"
           }
         }
       }
