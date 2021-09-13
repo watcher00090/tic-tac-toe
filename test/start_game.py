@@ -6,6 +6,8 @@ import driver
 print("Starting a new test....")
 test_id = driver.start_new_test()
 
+print("Passed driver.start_new_test....")
+
 out = driver.get_last_output_line()
 if out != "Player one (X) to move: ":
     print("TEST FAILED")
@@ -14,8 +16,15 @@ if out != "Player one (X) to move: ":
     print("Actual output:")
     print(out)
 
+print("Passed first driver.get_last_output_line....")
+
 driver.make_move("tl")
+
+print("Passed driver.make_move....")
+
 out = driver.get_last_output_line()
+
+print("Passed second driver.get_last_output_line....")
 
 if out != "Player one (X) moved to tl":
     print("TEST FAILED")
@@ -26,5 +35,7 @@ if out != "Player one (X) moved to tl":
 
 print("TEST PASSED")
 driver.end_test(test_id)
+
+print("Passed driver.end_test....")
 
 print("Test environment closed.")
