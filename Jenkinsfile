@@ -40,7 +40,13 @@ pipeline {
             def fileName = "${files[i].name}"
             if (fileName != "driver.py" && getFileType(fileName).toLowerCase() == "py") {
               echo "Attempting to run test ${files[i].name}"
-              sh "docker run -it -v build-$BUILD_ID-artifacts:/home/data/ --env ARTIFACTS_DATAPATH=/home/data tic-tac-toe-test:build-$BUILD_ID python /home/tic-tac-toe/test/${files[i].name}"
+              script {
+                env.CONTAINER_ID = sh(
+                  returnStdout: true,
+                  script: "docker run -d -v build-$BUILD_ID-artifacts:/home/data/ --env ARTIFACTS_DATAPATH=/home/data tic-tac-toe-test:build-$BUILD_ID python /home/tic-tac-toe/test/${files[i].name}"
+                )
+              }
+              sh "docker logs -f $CONTAINER_ID"
             }
           }
         }
