@@ -15,9 +15,12 @@ curr_lineidx = 0
 ARTIFACTS_DATAPATH = os.getenv('ARTIFACTS_DATAPATH')
 CODE_PATH = os.getenv('CODE_PATH')
 
+def eprint(s):
+    print(s, file=sys.stderr)
+
 def start_new_test() -> int:
     test_id = time.time() # Epoch time
-    print(f"Starting a test with ID {test_id}...")
+    eprint(f"Starting a test with ID {test_id}...")
 
     if Path(f"{ARTIFACTS_DATAPATH}/tic-tac-toe-pipe").exists():
         os.system(f"rm {ARTIFACTS_DATAPATH}/tic-tac-toe-pipe")
@@ -32,14 +35,14 @@ def start_new_test() -> int:
 
     (pid, _) = os.forkpty()
     if pid == 0: #child
-        print("Starting the tic-tac-toe game in the child process...")
+        eprint("Starting the tic-tac-toe game in the child process...")
 
         ret = os.system(f"bash -c \"cat {ARTIFACTS_DATAPATH}/tic-tac-toe-pipe | {CODE_PATH}/bin/tic-tac-toe 2> {ARTIFACTS_DATAPATH}/errors.log > {ARTIFACTS_DATAPATH}/errors.log\"")
         if ret != 0:
             sys.exit(f"ERROR: Attempting to run the tic-tac-toe game fed by the pipe produced the error {ret}")
 
     else: #parent
-        print("Attempting to drive the tic-tac-toe game through the parent process...")
+        eprint("Attempting to drive the tic-tac-toe game through the parent process...")
 
         #ret = os.system("bash -c 'echo -e \"tl\\nmi\\ntc\\ncl\\ntr\\nq\" >> /tmp/tic-tac-toe-pipe'")
 
@@ -55,7 +58,7 @@ def start_new_test() -> int:
         linesCopy = []
 
         for line in lines:
-            #print("Line{}: {}".format(count, line.rstrip("\n")))
+            #eprint("Line{}: {}".format(count, line.rstrip("\n")))
             result        = re.match(ingameinputRE, line)
             secondresult  = re.match(endgameinputRE, line)
             if result != None:
@@ -69,13 +72,13 @@ def start_new_test() -> int:
             
         num = 1
         for line in linesCopy:
-            print("Line {}: {}".format(num, line.rstrip("\n")))
+            eprint("Line {}: {}".format(num, line.rstrip("\n")))
             num += 1
 
     return 42
 
 def end_test(test_id: int): 
-    print("Ending the test with id: " + test_id)
+    eprint("Ending the test with id: " + test_id)
     os.system(f"ps -ef | grep tic-tac-toe | grep -v 'grep' >> {ARTIFACTS_DATAPATH}/tic-tac-toe-process-line")
     f = open(f"{ARTIFACTS_DATAPATH}/tic-tac-toe-process-line")
     lines = f.readlines()
@@ -83,10 +86,10 @@ def end_test(test_id: int):
     result = re.match(pidlineRE, main_line)
     if result != None:
         pid = result.group(1)
-        print(f"Matched the tic-tac-toe line: Found a tic-tac-toe process running with pid {pid}!")
-        print("Ending the process now...")
+        eprint(f"Matched the tic-tac-toe line: Found a tic-tac-toe process running with pid {pid}!")
+        eprint("Ending the process now...")
         os.kill(pid, 9)
-        print("The tic-tac-toe process has been terminated.")
+        eprint("The tic-tac-toe process has been terminated.")
         if Path(f"{ARTIFACTS_DATAPATH}/tic-tac-toe-pipe").exists():
             os.system(f"rm {ARTIFACTS_DATAPATH}/tic-tac-toe-pipe")
 
@@ -127,8 +130,8 @@ def get_last_output_line() -> str:
     return ret
 
 def make_move(move: str):
-    print(f"Attempting to make the move: {move}")
+    eprint(f"Attempting to make the move: {move}")
     ret = os.system(f"bash -c 'echo -e \"{move}\" >> {ARTIFACTS_DATAPATH}/tic-tac-toe-pipe'")
     if ret != 0:
         sys.exit(f"ERROR: Attempting to write a move to the tic-tac-toe game produced the error {ret}")
-    print("Move successfully fed into the tic-tac-toe game!")
+    eprint("Move successfully fed into the tic-tac-toe game!")

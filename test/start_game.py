@@ -2,40 +2,44 @@
 # as the correct prompt after Player One moves for the first time. 
 
 import driver
+import sys
 
-print("Starting a new test....")
+def eprint(s):
+    print(s, file=sys.stderr)
+
+eprint("Starting a new test....")
 test_id = driver.start_new_test()
 
-print("Passed driver.start_new_test....")
+eprint("Passed driver.start_new_test....")
 
 out = driver.get_last_output_line()
 if out != "Player one (X) to move: ":
-    print("TEST FAILED")
-    print("Desired output:")
-    print("Player one (X) to move: '")
-    print("Actual output:")
-    print(out)
+    eprint("TEST FAILED")
+    eprint("Desired output:")
+    eprint("Player one (X) to move: '")
+    eprint("Actual output:")
+    eprint(out)
 
-print("Passed first driver.get_last_output_line....")
+eprint("Passed first driver.get_last_output_line....")
 
 driver.make_move("tl")
 
-print("Passed driver.make_move....")
+eprint("Passed driver.make_move....")
 
 out = driver.get_last_output_line()
 
-print("Passed second driver.get_last_output_line....")
+eprint("Passed second driver.get_last_output_line....")
 
 if out != "Player one (X) moved to tl":
-    print("TEST FAILED")
-    print("Desired output:")
-    print("Player one moved to: tl")
-    print("Actual output:")
-    print(out)
+    eprint("TEST FAILED")
+    eprint("Desired output:")
+    eprint("Player one moved to: tl")
+    eprint("Actual output:")
+    eprint(out)
 
-print("TEST PASSED")
+eprint("TEST PASSED")
 driver.end_test(test_id)
 
-print("Passed driver.end_test....")
+eprint("Passed driver.end_test....")
 
-print("Test environment closed.")
+eprint("Test environment closed.")
