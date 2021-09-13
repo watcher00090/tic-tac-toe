@@ -25,7 +25,7 @@ pipeline {
         script {
           env.VOLUME_MOUNT_PATH = sh(
             returnStdout: true,
-            script: "docker volume inspect build-$BUILD_ID-artifacts | jq '.[0] | .Mountpoint' | sed -e 's/^\"//' -e 's/\"$//'"
+            script: "docker volume inspect build-$BUILD_ID-artifacts | jq '.[0] | .Mountpoint' | sed -e 's/^\"//' -e 's/\"\$//'"
           ).trim()      
         }
         echo "Docker volume data path = ${VOLUME_MOUNT_PATH}"
