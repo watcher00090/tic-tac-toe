@@ -17,7 +17,7 @@ CODE_PATH = os.getenv('CODE_PATH')
 
 def start_new_test() -> int:
     test_id = time.time() # Epoch time
-    print(f"Starting a test with id ${test_id}...")
+    print(f"Starting a test with ID {test_id}...")
 
     if Path(f"{ARTIFACTS_DATAPATH}/tic-tac-toe-pipe").exists():
         os.system(f"rm {ARTIFACTS_DATAPATH}/tic-tac-toe-pipe")
@@ -34,7 +34,7 @@ def start_new_test() -> int:
     if pid == 0: #child
         print("Starting the tic-tac-toe game in the child process...")
 
-        ret = os.system(f"bash -c \"cat {ARTIFACTS_DATAPATH}/tic-tac-toe-pipe | {CODE_PATH}/bin/tic-tac-toe 2> ${ARTIFACTS_DATAPATH}/errors.log > ${ARTIFACTS_DATAPATH}/errors.log\"")
+        ret = os.system(f"bash -c \"cat {ARTIFACTS_DATAPATH}/tic-tac-toe-pipe | {CODE_PATH}/bin/tic-tac-toe 2> {ARTIFACTS_DATAPATH}/errors.log > {ARTIFACTS_DATAPATH}/errors.log\"")
         if ret != 0:
             sys.exit(f"ERROR: Attempting to run the tic-tac-toe game fed by the pipe produced the error {ret}")
 
@@ -83,7 +83,7 @@ def end_test(test_id: int):
     result = re.match(pidlineRE, main_line)
     if result != None:
         pid = result.group(1)
-        print(f"Matched the tic-tac-toe line: Found a tic-tac-toe process running with pid ${pid}!")
+        print(f"Matched the tic-tac-toe line: Found a tic-tac-toe process running with pid {pid}!")
         print("Ending the process now...")
         os.kill(pid, 9)
         print("The tic-tac-toe process has been terminated.")
