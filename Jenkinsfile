@@ -22,12 +22,16 @@ pipeline {
     stage('Test') {
       steps {
         script {
+          @NonCPS
+          public static String getFileType(string fileName) {
+            def matcher =  fileName =~ /.*\.(\w+)$/
+            return matcher[0][1]
+          }
           def files = findFiles(glob: 'test/*.*')
           for (int i = 0; i < files.length; i++) {
+            echo "Attempting to run test ${files[i].name}"
             def fileName = "${files[i].name}"
-            def matcher =  fileName =~ /.*\.(\w+)$/
-            def fileType = matcher[0][1]
-            if (fileName != "driver.py" && fileType.toLowerCase() == "py") {
+            if (fileName != "driver.py" && getFileType(fileName).toLowerCase() == "py") {
               sh "docker run -v build-$BUILD_ID-artifacts:/home/data/ --env ARTIFACTS_DATAPATH=/home/data tic-tac-toe-test:build-$BUILD_ID 'python /home/ubuntu/test/${files[i].name}"
             }
           }
