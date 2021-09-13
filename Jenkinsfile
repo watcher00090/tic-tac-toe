@@ -25,7 +25,7 @@ pipeline {
         VOLUME_MOUNT_PATH = sh(
           returnStdout: true,
           script: "docker volume inspect build-$BUILD_ID-artifacts | jq '.[0] | .Mountpoint' | sed -e 's/^"//' -e 's/"$//'"
-        )      
+        ).trim()      
       }
     }
 
