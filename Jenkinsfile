@@ -25,7 +25,7 @@ pipeline {
           def files = findFiles(glob: 'test/*.*')
           for (int i = 0; i < files.length; i++) {
             def fileName = "${files[i].name}"
-            def matcher =  fileName =~ /.*\.(\w+)^/
+            def matcher =  fileName =~ /.*\.(\w+)$/
             def fileType = matcher[0][1]
             if (fileName != "driver.py" && fileType.toLowerCase() == "py") {
               sh "docker run -v build-$BUILD_ID-artifacts:/home/data/ --env ARTIFACTS_DATAPATH=/home/data tic-tac-toe-test:build-$BUILD_ID 'python /home/ubuntu/test/${files[i].name}"
