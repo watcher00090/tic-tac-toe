@@ -21,7 +21,11 @@ pipeline {
         echo 'Building the project...'
         sh "docker build -t tic-tac-toe-test:build-$BUILD_ID ."
         sh 'docker image ls'
-        sh "docker volume create --driver local --opt type=ext4 --name build-$BUILD_ID-artifacts --opt device=:/data/docker-volume-store/build-$BUILD_ID-artifacts"      
+        sh "docker volume create --name build-$BUILD_ID-artifacts"
+        VOLUME_MOUNT_PATH = sh(
+          returnStdout: true,
+          script: "docker volume inspect build-$BUILD_ID-artifacts | jq '.[0] | .Mountpoint' | sed -e 's/^"//' -e 's/"$//'"
+        )      
       }
     }
 
