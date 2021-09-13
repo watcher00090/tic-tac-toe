@@ -13,6 +13,7 @@ pidlineRE = r"\s*\w+\s+(\d*).*^$"
 num_output_lines_processed = 0
 curr_lineidx = 0
 ARTIFACTS_DATAPATH = os.getenv('ARTIFACTS_DATAPATH')
+CODE_PATH = os.getenv('CODE_PATH')
 
 def start_new_test() -> int:
     test_id = time.time() # Epoch time
@@ -33,7 +34,7 @@ def start_new_test() -> int:
     if pid == 0: #child
         print("Starting the tic-tac-toe game in the child process...")
 
-        ret = os.system(f"bash -c \"cat {ARTIFACTS_DATAPATH}/tic-tac-toe-pipe | /home/ubuntu/tic-tac-toe/bin/tic-tac-toe 2> ${ARTIFACTS_DATAPATH}/errors.log > ${ARTIFACTS_DATAPATH}/errors.log\"")
+        ret = os.system(f"bash -c \"cat {ARTIFACTS_DATAPATH}/tic-tac-toe-pipe | ${CODE_PATH}/bin/tic-tac-toe 2> ${ARTIFACTS_DATAPATH}/errors.log > ${ARTIFACTS_DATAPATH}/errors.log\"")
         if ret != 0:
             sys.exit(f"ERROR: Attempting to run the tic-tac-toe game fed by the pipe produced the error {ret}")
 

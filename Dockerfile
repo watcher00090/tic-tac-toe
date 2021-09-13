@@ -18,6 +18,7 @@ RUN curl -L "https://golang.org/dl/go1.17.1.linux-amd64.tar.gz" -o downloads/go1
 RUN tar -C /usr/local -xzf downloads/go1.17.1.linux-amd64.tar.gz
 RUN bash -c 'echo "export PATH=$PATH:/usr/local/go/bin" >> /etc/profile'
 ENV PATH="$PATH:/usr/local/go/bin"
+ENV CODE_PATH="/home/tic-tac-tie"
 
 RUN mkdir test-artifacts
 RUN mkdir src
