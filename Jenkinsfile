@@ -1,5 +1,5 @@
 @NonCPS
-def String getFileType(string fileName) {
+def getFileType(string fileName) {
   def matcher =  fileName =~ /.*\.(\w+)$/
   return matcher[0][1]
 }
