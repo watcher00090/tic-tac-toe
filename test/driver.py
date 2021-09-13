@@ -23,7 +23,7 @@ def start_new_test() -> int:
         os.system(f"rm {ARTIFACTS_DATAPATH}/tic-tac-toe-pipe")
 
     if Path(f"{ARTIFACTS_DATAPATH}/errors_formatted.log").exists():
-        os.system(f"ERROR: ${ARTIFACTS_DATAPATH}/errors_formatted.log already exists! Exiting the script.")
+        os.system(f"ERROR: {ARTIFACTS_DATAPATH}/errors_formatted.log already exists! Exiting the script.")
         sys.exit()
 
     ret = os.system(f"bash -c \"mkfifo {ARTIFACTS_DATAPATH}/tic-tac-toe-pipe\"")
@@ -34,7 +34,7 @@ def start_new_test() -> int:
     if pid == 0: #child
         print("Starting the tic-tac-toe game in the child process...")
 
-        ret = os.system(f"bash -c \"cat {ARTIFACTS_DATAPATH}/tic-tac-toe-pipe | ${CODE_PATH}/bin/tic-tac-toe 2> ${ARTIFACTS_DATAPATH}/errors.log > ${ARTIFACTS_DATAPATH}/errors.log\"")
+        ret = os.system(f"bash -c \"cat {ARTIFACTS_DATAPATH}/tic-tac-toe-pipe | {CODE_PATH}/bin/tic-tac-toe 2> ${ARTIFACTS_DATAPATH}/errors.log > ${ARTIFACTS_DATAPATH}/errors.log\"")
         if ret != 0:
             sys.exit(f"ERROR: Attempting to run the tic-tac-toe game fed by the pipe produced the error {ret}")
 
