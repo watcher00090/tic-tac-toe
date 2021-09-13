@@ -18,10 +18,14 @@ def start_new_test() -> int:
     test_id = time.time() # Epoch time
     print(f"Starting a test with id ${test_id}...")
 
-    if Path(f"${ARTIFACTS_DATAPATH}/tic-tac-toe-pipe").exists():
-        os.system(f"rm ${ARTIFACTS_DATAPATH}/tic-tac-toe-pipe")
+    if Path(f"{ARTIFACTS_DATAPATH}/tic-tac-toe-pipe").exists():
+        os.system(f"rm {ARTIFACTS_DATAPATH}/tic-tac-toe-pipe")
 
-    ret = os.system(f"bash -c \"mkfifo ${ARTIFACTS_DATAPATH}/tic-tac-toe-pipe\"")
+    if Path(f"{ARTIFACTS_DATAPATH}/errors_formatted.log").exists():
+        os.system(f"ERROR: ${ARTIFACTS_DATAPATH}/errors_formatted.log already exists! Exiting the script.")
+        sys.exit()
+
+    ret = os.system(f"bash -c \"mkfifo {ARTIFACTS_DATAPATH}/tic-tac-toe-pipe\"")
     if ret != 0:
         sys.exit(f"ERROR: Attempting to make the FIFO returned the error {ret}")
 
@@ -29,7 +33,7 @@ def start_new_test() -> int:
     if pid == 0: #child
         print("Starting the tic-tac-toe game in the child process...")
 
-        ret = os.system(f"bash -c \"cat ${ARTIFACTS_DATAPATH}/tic-tac-toe-pipe | /home/ubuntu/tic-tac-toe/bin/tic-tac-toe 2> ${ARTIFACTS_DATAPATH}/errors.log > ${ARTIFACTS_DATAPATH}/errors.log\"")
+        ret = os.system(f"bash -c \"cat {ARTIFACTS_DATAPATH}/tic-tac-toe-pipe | /home/ubuntu/tic-tac-toe/bin/tic-tac-toe 2> ${ARTIFACTS_DATAPATH}/errors.log > ${ARTIFACTS_DATAPATH}/errors.log\"")
         if ret != 0:
             sys.exit(f"ERROR: Attempting to run the tic-tac-toe game fed by the pipe produced the error {ret}")
 
@@ -43,7 +47,7 @@ def start_new_test() -> int:
         # wait for the child process to complete
         status = os.wait()
 
-        f = open(f"${ARTIFACTS_DATAPATH}/errors.log")
+        f = open(f"{ARTIFACTS_DATAPATH}/errors.log")
         
         lines = f.readlines()
 
@@ -71,8 +75,8 @@ def start_new_test() -> int:
 
 def end_test(test_id: int): 
     print("Ending the test with id: " + test_id)
-    os.system(f"ps -ef | grep tic-tac-toe | grep -v 'grep' >> ${ARTIFACTS_DATAPATH}/tic-tac-toe-process-line")
-    f = open(f"${ARTIFACTS_DATAPATH}/tic-tac-toe-process-line")
+    os.system(f"ps -ef | grep tic-tac-toe | grep -v 'grep' >> {ARTIFACTS_DATAPATH}/tic-tac-toe-process-line")
+    f = open(f"{ARTIFACTS_DATAPATH}/tic-tac-toe-process-line")
     lines = f.readlines()
     main_line = lines[0]
     result = re.match(pidlineRE, main_line)
@@ -82,15 +86,15 @@ def end_test(test_id: int):
         print("Ending the process now...")
         os.kill(pid, 9)
         print("The tic-tac-toe process has been terminated.")
-        if Path(f"${ARTIFACTS_DATAPATH}/tic-tac-toe-pipe").exists():
-            os.system(f"rm ${ARTIFACTS_DATAPATH}/tic-tac-toe-pipe")
+        if Path(f"{ARTIFACTS_DATAPATH}/tic-tac-toe-pipe").exists():
+            os.system(f"rm {ARTIFACTS_DATAPATH}/tic-tac-toe-pipe")
 
 def get_last_output_line() -> str:
     global num_output_lines_processed
     global curr_lineidx
 
-    f = open(f"${ARTIFACTS_DATAPATH}/errors.log")
-    f_formatted = open(f"${ARTIFACTS_DATAPATH}/errors_formatted.log")
+    f = open(f"{ARTIFACTS_DATAPATH}/errors.log")
+    f_formatted = open(f"{ARTIFACTS_DATAPATH}/errors_formatted.log")
         
     lines = f.readlines()
 
@@ -123,7 +127,7 @@ def get_last_output_line() -> str:
 
 def make_move(move: str):
     print(f"Attempting to make the move: {move}")
-    ret = os.system(f"bash -c 'echo -e \"${move}\" >> ${ARTIFACTS_DATAPATH}/tic-tac-toe-pipe'")
+    ret = os.system(f"bash -c 'echo -e \"{move}\" >> {ARTIFACTS_DATAPATH}/tic-tac-toe-pipe'")
     if ret != 0:
         sys.exit(f"ERROR: Attempting to write a move to the tic-tac-toe game produced the error {ret}")
     print("Move successfully fed into the tic-tac-toe game!")
