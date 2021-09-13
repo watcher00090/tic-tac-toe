@@ -44,7 +44,7 @@ pipeline {
                 env.CONTAINER_ID = sh(
                   returnStdout: true,
                   script: "docker run -d -v build-$BUILD_ID-artifacts:/home/data/ --env ARTIFACTS_DATAPATH=/home/data tic-tac-toe-test:build-$BUILD_ID python /home/tic-tac-toe/test/${files[i].name}"
-                )
+                ).trim()
               }
               sh "docker logs -f $CONTAINER_ID"
             }
