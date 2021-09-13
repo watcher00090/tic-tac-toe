@@ -9,59 +9,121 @@ from copy import deepcopy
 
 ingameinputRE = r"Player (one|two) \((X|O)\) to move\: (.+)$"
 endgameinputRE = r"Type 'n' to start a new game, or 'q' or 'quit' to quit\: (.+)$"
+pidlineRE = r"\s*\w+\s+(\d*).*^$"
+num_output_lines_processed = 0
+curr_lineidx = 0
+ARTIFACTS_DATAPATH = os.getenv('ARTIFACTS_DATAPATH')
 
-if Path("/tmp/tic-tac-toe-pipe").exists():
-    os.system("rm /tmp/tic-tac-toe-pipe")
+def start_new_test() -> int:
+    test_id = time.time() # Epoch time
+    print(f"Starting a test with id ${test_id}...")
 
-ret = os.system("bash -c \"mkfifo /tmp/tic-tac-toe-pipe\"")
-if ret != 0:
-    sys.exit(f"ERROR: Attempting to make the FIFO returned the error {ret}")
+    if Path(f"${ARTIFACTS_DATAPATH}/tic-tac-toe-pipe").exists():
+        os.system(f"rm ${ARTIFACTS_DATAPATH}/tic-tac-toe-pipe")
 
-(pid, fd) = os.forkpty()
-if pid == 0: #child
-    print("child process executing...")
-
-    ret = os.system("bash -c \"cat /tmp/tic-tac-toe-pipe | /home/ubuntu/tic-tac-toe/bin/tic-tac-toe  2> /tmp/errors.log > /tmp/errors.log\"")
+    ret = os.system(f"bash -c \"mkfifo ${ARTIFACTS_DATAPATH}/tic-tac-toe-pipe\"")
     if ret != 0:
-        sys.exit(f"ERROR: Attempting to run the program fed by the pipe produced the error {ret}")
+        sys.exit(f"ERROR: Attempting to make the FIFO returned the error {ret}")
 
-else: #parent
-    print("Parent process executing...")
-    print("Attempting to drive the tic-tac-toe game through the parent process...")
+    (pid, _) = os.forkpty()
+    if pid == 0: #child
+        print("Starting the tic-tac-toe game in the child process...")
 
-    #ret = os.system("bash -c 'echo -e \"tl\\nmi\\ntc\\ncl\\ntr\\nq\" >> /tmp/tic-tac-toe-pipe'")
-    ret = os.system("bash -c 'echo -e \"tl\" >> /tmp/tic-tac-toe-pipe'")
-    if ret != 0:
-        sys.exit(f"ERROR: Attempting to write a move to the tic-tac-toe game produced the error {ret}")
+        ret = os.system(f"bash -c \"cat ${ARTIFACTS_DATAPATH}/tic-tac-toe-pipe | /home/ubuntu/tic-tac-toe/bin/tic-tac-toe 2> ${ARTIFACTS_DATAPATH}/errors.log > ${ARTIFACTS_DATAPATH}/errors.log\"")
+        if ret != 0:
+            sys.exit(f"ERROR: Attempting to run the tic-tac-toe game fed by the pipe produced the error {ret}")
 
-    print("Command sequence fed into the pipe successfully!")
+    else: #parent
+        print("Attempting to drive the tic-tac-toe game through the parent process...")
 
-    time.sleep(5)
+        #ret = os.system("bash -c 'echo -e \"tl\\nmi\\ntc\\ncl\\ntr\\nq\" >> /tmp/tic-tac-toe-pipe'")
 
-    # wait for the child process to complete
-    status = os.wait()
+        time.sleep(5)
 
-    f = open("/tmp/errors.log")
-    
+        # wait for the child process to complete
+        status = os.wait()
+
+        f = open(f"${ARTIFACTS_DATAPATH}/errors.log")
+        
+        lines = f.readlines()
+
+        linesCopy = []
+
+        for line in lines:
+            #print("Line{}: {}".format(count, line.rstrip("\n")))
+            result        = re.match(ingameinputRE, line)
+            secondresult  = re.match(endgameinputRE, line)
+            if result != None:
+                linesCopy.append(f"Player {result.group(1)} ({result.group(2)}) to move:\n")
+                linesCopy.append(f"{result.group(3)}\n")
+            elif secondresult != None:
+                linesCopy.append(f"Type 'n' to start a new game, or 'q' or 'quit' to quit:\n")
+                linesCopy.append(f"{secondresult.group(1)}\n")
+            else:
+                linesCopy.append(deepcopy(line))
+            
+        num = 1
+        for line in linesCopy:
+            print("Line {}: {}".format(num, line.rstrip("\n")))
+            num += 1
+
+    return 42
+
+def end_test(test_id: int): 
+    print("Ending the test with id: " + test_id)
+    os.system(f"ps -ef | grep tic-tac-toe | grep -v 'grep' >> ${ARTIFACTS_DATAPATH}/tic-tac-toe-process-line")
+    f = open(f"${ARTIFACTS_DATAPATH}/tic-tac-toe-process-line")
+    lines = f.readlines()
+    main_line = lines[0]
+    result = re.match(pidlineRE, main_line)
+    if result != None:
+        pid = result.group(1)
+        print(f"Matched the tic-tac-toe line: Found a tic-tac-toe process running with pid ${pid}!")
+        print("Ending the process now...")
+        os.kill(pid, 9)
+        print("The tic-tac-toe process has been terminated.")
+        if Path(f"${ARTIFACTS_DATAPATH}/tic-tac-toe-pipe").exists():
+            os.system(f"rm ${ARTIFACTS_DATAPATH}/tic-tac-toe-pipe")
+
+def get_last_output_line() -> str:
+    global num_output_lines_processed
+    global curr_lineidx
+
+    f = open(f"${ARTIFACTS_DATAPATH}/errors.log")
+    f_formatted = open(f"${ARTIFACTS_DATAPATH}/errors_formatted.log")
+        
     lines = f.readlines()
 
-    linesCopy = []
+    if len(lines) != num_output_lines_processed:
 
-    for line in lines:
-        #print("Line{}: {}".format(count, line.rstrip("\n")))
-        result        = re.match(ingameinputRE, line)
-        secondresult  = re.match(endgameinputRE, line)
-        if result != None:
-            linesCopy.append(f"Player {result.group(1)} ({result.group(2)}) to move:\n")
-            linesCopy.append(f"{result.group(3)}\n")
-        elif secondresult != None:
-            linesCopy.append(f"Type 'n' to start a new game, or 'q' or 'quit' to quit:\n")
-            linesCopy.append(f"{secondresult.group(1)}\n")
-        else:
-            linesCopy.append(deepcopy(line))
-        
-    num = 1
-    for line in linesCopy:
-        print("Line {}: {}".format(num, line.rstrip("\n")))
-        num += 1
+        for i in range(curr_lineidx, len(lines)):
+            line = lines[i]
+            result        = re.match(ingameinputRE, line)
+            secondresult  = re.match(endgameinputRE, line)
+            if result != None:
+                f_formatted.write(f"Player {result.group(1)} ({result.group(2)}) to move:\n")
+                f_formatted.write(f"{result.group(3)}\n")
+                
+            elif secondresult != None:
+                f_formatted.write(f"Type 'n' to start a new game, or 'q' or 'quit' to quit:\n")
+                f_formatted.write(f"{secondresult.group(1)}\n")
+            else:
+                f_formatted.write(deepcopy(line))
 
+            num_output_lines_processed += 1
+
+    f_formatted_lines = f_formatted.readlines()
+    ret = f_formatted_lines[curr_lineidx]
+    curr_lineidx += 1
+
+    f.close()
+    f_formatted.close()
+
+    return ret
+
+def make_move(move: str):
+    print(f"Attempting to make the move: {move}")
+    ret = os.system(f"bash -c 'echo -e \"${move}\" >> ${ARTIFACTS_DATAPATH}/tic-tac-toe-pipe'")
+    if ret != 0:
+        sys.exit(f"ERROR: Attempting to write a move to the tic-tac-toe game produced the error {ret}")
+    print("Move successfully fed into the tic-tac-toe game!")
