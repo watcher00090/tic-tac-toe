@@ -1,3 +1,9 @@
+@NonCPS
+def String getFileType(string fileName) {
+  def matcher =  fileName =~ /.*\.(\w+)$/
+  return matcher[0][1]
+}
+
 pipeline {
   agent any
   options {
@@ -22,11 +28,6 @@ pipeline {
     stage('Test') {
       steps {
         script {
-          @NonCPS
-          public static String getFileType(string fileName) {
-            def matcher =  fileName =~ /.*\.(\w+)$/
-            return matcher[0][1]
-          }
           def files = findFiles(glob: 'test/*.*')
           for (int i = 0; i < files.length; i++) {
             echo "Attempting to run test ${files[i].name}"
