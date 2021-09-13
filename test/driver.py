@@ -100,7 +100,7 @@ def get_last_output_line() -> str:
     global curr_lineidx
 
     f = open(f"{ARTIFACTS_DATAPATH}/errors.log")
-    f_formatted = open(f"{ARTIFACTS_DATAPATH}/errors_formatted.log")
+    f_formatted = open(f"{ARTIFACTS_DATAPATH}/errors_formatted.log", 'w+')
         
     lines = f.readlines()
 
