@@ -10,8 +10,9 @@ from copy import deepcopy
 ingameinputRE = r"Player (one|two) \((X|O)\) to move\: (.+)$"
 endgameinputRE = r"Type 'n' to start a new game, or 'q' or 'quit' to quit\: (.+)$"
 pidlineRE = r"\s*\w+\s+(\d*).*^$"
-num_output_lines_processed = 0
 curr_lineidx = 0
+queue_is_empty = False
+queued_line = None
 ARTIFACTS_DATAPATH = os.getenv('ARTIFACTS_DATAPATH')
 CODE_PATH = os.getenv('CODE_PATH')
 
@@ -96,40 +97,45 @@ def end_test(test_id: int):
             os.system(f"rm {ARTIFACTS_DATAPATH}/tic-tac-toe-pipe")
 
 def get_last_output_line() -> str:
-    global num_output_lines_processed
-    global curr_lineidx
+    global queue_is_empty
+    global queued_line
 
-    f = open(f"{ARTIFACTS_DATAPATH}/errors.log")
-    f_formatted = open(f"{ARTIFACTS_DATAPATH}/errors_formatted.log", 'w+')
-        
-    lines = f.readlines()
+    if not queue_is_empty:
+        queue_is_empty = True
+        ret = deepcopy(queued_line)
+        queued_line = None
+        return ret
 
-    if len(lines) != num_output_lines_processed:
+    # Read the last line of the file and return the next output line, queueing up a line if necessary
+    else:
 
-        for i in range(curr_lineidx, len(lines)):
-            line = lines[i]
-            result        = re.match(ingameinputRE, line)
-            secondresult  = re.match(endgameinputRE, line)
-            if result != None:
-                f_formatted.write(f"Player {result.group(1)} ({result.group(2)}) to move:\n")
-                f_formatted.write(f"{result.group(3)}\n")
-                
-            elif secondresult != None:
-                f_formatted.write(f"Type 'n' to start a new game, or 'q' or 'quit' to quit:\n")
-                f_formatted.write(f"{secondresult.group(1)}\n")
-            else:
-                f_formatted.write(deepcopy(line))
+        f = open(f"{ARTIFACTS_DATAPATH}/errors.log")
+        f_formatted = open(f"{ARTIFACTS_DATAPATH}/errors_formatted.log", 'w+')
+        lines = f.readlines()
 
-            num_output_lines_processed += 1
+        line = lines[-1]
+        result        = re.match(ingameinputRE, line)
+        secondresult  = re.match(endgameinputRE, line)
+        if result != None:
+            ret = f"Player {result.group(1)} ({result.group(2)}) to move:"
+            second_line = f"{result.group(3)}"
 
-    f_formatted_lines = f_formatted.readlines()
-    ret = f_formatted_lines[curr_lineidx]
-    curr_lineidx += 1
+            queue_is_empty = False
+            queued_line = deepcopy(second_line)
 
-    f.close()
-    f_formatted.close()
+            return ret
 
-    return ret
+        elif secondresult != None:
+            ret = (f"Type 'n' to start a new game, or 'q' or 'quit' to quit:")
+            second_line = f"{secondresult.group(1)}"
+
+            queue_is_empty = False
+            queued_line = deepcopy(second_line)
+
+            return ret
+
+        else:
+            return line 
 
 def make_move(move: str):
     eprint(f"Attempting to make the move: {move}")
