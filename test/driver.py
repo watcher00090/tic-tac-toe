@@ -36,6 +36,9 @@ def start_new_test() -> int:
     if ret != 0:
         sys.exit(f"ERROR: Attempting to make the FIFO returned the error {ret}")
 
+    # Keep the pipe open
+    os.system(f"nohup cat > {ARTIFACTS_DATAPATH}/tic-tac-toe-pipe 2> /tmp/output.dump &")
+
     (pid, _) = os.forkpty()
     if pid == 0: #child
         eprint("Starting the tic-tac-toe game in the child process...")
@@ -54,31 +57,31 @@ def start_new_test() -> int:
         # wait for the child process to complete
         status = os.wait()
 
-        f = open(f"{ARTIFACTS_DATAPATH}/errors.log")
+    #     f = open(f"{ARTIFACTS_DATAPATH}/errors.log")
         
-        lines = f.readlines()
+    #     lines = f.readlines()
 
-        linesCopy = []
+    #     linesCopy = []
 
-        for line in lines:
-            #eprint("Line{}: {}".format(count, line.rstrip("\n")))
-            result        = re.match(ingameinputRE, line)
-            secondresult  = re.match(endgameinputRE, line)
-            if result != None:
-                linesCopy.append(f"Player {result.group(1)} ({result.group(2)}) to move:\n")
-                linesCopy.append(f"{result.group(3)}\n")
-            elif secondresult != None:
-                linesCopy.append(f"Type 'n' to start a new game, or 'q' or 'quit' to quit:\n")
-                linesCopy.append(f"{secondresult.group(1)}\n")
-            else:
-                linesCopy.append(deepcopy(line))
+    #     for line in lines:
+    #         #eprint("Line{}: {}".format(count, line.rstrip("\n")))
+    #         result        = re.match(ingameinputRE, line)
+    #         secondresult  = re.match(endgameinputRE, line)
+    #         if result != None:
+    #             linesCopy.append(f"Player {result.group(1)} ({result.group(2)}) to move:\n")
+    #             linesCopy.append(f"{result.group(3)}\n")
+    #         elif secondresult != None:
+    #             linesCopy.append(f"Type 'n' to start a new game, or 'q' or 'quit' to quit:\n")
+    #             linesCopy.append(f"{secondresult.group(1)}\n")
+    #         else:
+    #             linesCopy.append(deepcopy(line))
             
-        num = 1
-        for line in linesCopy:
-            eprint("Line {}: {}".format(num, line.rstrip("\n")))
-            num += 1
+    #     num = 1
+    #     for line in linesCopy:
+    #         eprint("Line {}: {}".format(num, line.rstrip("\n")))
+    #         num += 1
 
-    return 42
+    # return 42
 
 def end_test(test_id: int): 
     eprint("Ending the test with id: " + test_id)
