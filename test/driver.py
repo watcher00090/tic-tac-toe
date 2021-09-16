@@ -15,73 +15,46 @@ queue_is_empty = True
 queued_line = None
 ARTIFACTS_DATAPATH = os.getenv('ARTIFACTS_DATAPATH')
 CODE_PATH = os.getenv('CODE_PATH')
+MOVE_QUEUE = None
 
 def eprint(s):
     print(s, file=sys.stderr)
 
 def start_new_test() -> int:
-    test_id = time.time() # Epoch time
+    global MOVE_QUEUE
+
+    test_id = time.time_ns() # Epoch time in nanoseconds
+    MOVE_QUEUE = []
     eprint(f"Starting a test with ID {test_id}...")
 
     if Path(f"{ARTIFACTS_DATAPATH}/tic-tac-toe-pipe").exists():
         os.system(f"rm {ARTIFACTS_DATAPATH}/tic-tac-toe-pipe")
 
-    if Path(f"{ARTIFACTS_DATAPATH}/errors_formatted.log").exists():
-        os.system(f"ERROR: {ARTIFACTS_DATAPATH}/errors_formatted.log already exists! Exiting the script.")
-        sys.exit()
-
-    os.system(f"touch {ARTIFACTS_DATAPATH}/errors_formatted.log")
+    os.system(f"touch {ARTIFACTS_DATAPATH}/errors.log")
 
     ret = os.system(f"bash -c \"mkfifo {ARTIFACTS_DATAPATH}/tic-tac-toe-pipe\"")
     if ret != 0:
         sys.exit(f"ERROR: Attempting to make the FIFO returned the error {ret}")
 
-    # Keep the pipe open
-    os.system(f"nohup cat > {ARTIFACTS_DATAPATH}/tic-tac-toe-pipe 2> /tmp/output.dump &")
-
     (pid, _) = os.forkpty()
     if pid == 0: #child
         eprint("Starting the tic-tac-toe game in the child process...")
 
-        ret = os.system(f"bash -c \"cat {ARTIFACTS_DATAPATH}/tic-tac-toe-pipe | {CODE_PATH}/bin/tic-tac-toe 2> {ARTIFACTS_DATAPATH}/errors.log > {ARTIFACTS_DATAPATH}/errors.log\"")
+        ret = os.system(f"bash -c \"cat {ARTIFACTS_DATAPATH}/tic-tac-toe-pipe | {CODE_PATH}/bin/tic-tac-toe > {ARTIFACTS_DATAPATH}/errors.log\"")
         if ret != 0:
             sys.exit(f"ERROR: Attempting to run the tic-tac-toe game fed by the pipe produced the error {ret}")
 
     else: #parent
         eprint("Attempting to drive the tic-tac-toe game through the parent process...")
-
         #ret = os.system("bash -c 'echo -e \"tl\\nmi\\ntc\\ncl\\ntr\\nq\" >> /tmp/tic-tac-toe-pipe'")
-
-        time.sleep(5)
-
-        # wait for the child process to complete
-        status = os.wait()
-
-    #     f = open(f"{ARTIFACTS_DATAPATH}/errors.log")
-        
-    #     lines = f.readlines()
-
-    #     linesCopy = []
-
-    #     for line in lines:
-    #         #eprint("Line{}: {}".format(count, line.rstrip("\n")))
-    #         result        = re.match(ingameinputRE, line)
-    #         secondresult  = re.match(endgameinputRE, line)
-    #         if result != None:
-    #             linesCopy.append(f"Player {result.group(1)} ({result.group(2)}) to move:\n")
-    #             linesCopy.append(f"{result.group(3)}\n")
-    #         elif secondresult != None:
-    #             linesCopy.append(f"Type 'n' to start a new game, or 'q' or 'quit' to quit:\n")
-    #             linesCopy.append(f"{secondresult.group(1)}\n")
-    #         else:
-    #             linesCopy.append(deepcopy(line))
-            
-    #     num = 1
-    #     for line in linesCopy:
-    #         eprint("Line {}: {}".format(num, line.rstrip("\n")))
-    #         num += 1
-
-    # return 42
+        while True:
+            if len(MOVE_QUEUE) > 0:
+                move = MOVE_QUEUE.pop()
+                ret = os.system(f"bash -c 'echo -e \"{move}\" >> {ARTIFACTS_DATAPATH}/tic-tac-toe-pipe'")
+                if ret != 0:
+                    sys.exit(f"ERROR: Attempting to write a move to the tic-tac-toe game produced the error {ret}")
+                eprint("Move successfully fed into the tic-tac-toe game!")
+            time.sleep(5)
 
 def end_test(test_id: int): 
     eprint("Ending the test with id: " + test_id)
@@ -113,7 +86,6 @@ def get_last_output_line() -> str:
     else:
 
         f = open(f"{ARTIFACTS_DATAPATH}/errors.log")
-        f_formatted = open(f"{ARTIFACTS_DATAPATH}/errors_formatted.log", 'w+')
         lines = f.readlines()
 
         line = lines[-1]
@@ -141,8 +113,6 @@ def get_last_output_line() -> str:
             return line 
 
 def make_move(move: str):
+    global MOVE_QUEUE
     eprint(f"Attempting to make the move: {move}")
-    ret = os.system(f"bash -c 'echo -e \"{move}\" >> {ARTIFACTS_DATAPATH}/tic-tac-toe-pipe'")
-    if ret != 0:
-        sys.exit(f"ERROR: Attempting to write a move to the tic-tac-toe game produced the error {ret}")
-    eprint("Move successfully fed into the tic-tac-toe game!")
+    MOVE_QUEUE.append(move)
