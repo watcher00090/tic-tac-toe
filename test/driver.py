@@ -1,118 +1,83 @@
 import subprocess
 import os
 import time
-import signal
 import sys
-import re
-from pathlib import Path
-from copy import deepcopy
+from subprocess import TimeoutExpired
 
 ingameinputRE = r"Player (one|two) \((X|O)\) to move\: (.+)$"
 endgameinputRE = r"Type 'n' to start a new game, or 'q' or 'quit' to quit\: (.+)$"
 pidlineRE = r"\s*\w+\s+(\d*).*^$"
-curr_lineidx = 0
-queue_is_empty = True
-queued_line = None
+curr_lineidx = None
+output_lines = None
 ARTIFACTS_DATAPATH = os.getenv('ARTIFACTS_DATAPATH')
 CODE_PATH = os.getenv('CODE_PATH')
-MOVE_QUEUE = None
+OUTPUT_FILE = None
+TEST_START_HEADER = "------------------------------------------------\n"
+tic_tac_toe_proc = None
+PROC_COMMUNICATION_TIMEOUT = 15
 
 def eprint(s):
     print(s, file=sys.stderr)
 
 def start_new_test() -> int:
-    global MOVE_QUEUE
+    global OUTPUT_FILE
+    global tic_tac_toe_proc
+    global output_lines
+    global curr_lineidx
 
     test_id = time.time_ns() # Epoch time in nanoseconds
-    MOVE_QUEUE = []
     eprint(f"Starting a test with ID {test_id}...")
 
-    if Path(f"{ARTIFACTS_DATAPATH}/tic-tac-toe-pipe").exists():
-        os.system(f"rm {ARTIFACTS_DATAPATH}/tic-tac-toe-pipe")
+    OUTPUT_FILE = open(os.path.join(f"{ARTIFACTS_DATAPATH}", "errors.log"), mode = 'a') # Append to the file if it already exists
+    OUTPUT_FILE.write(TEST_START_HEADER)
 
-    os.system(f"touch {ARTIFACTS_DATAPATH}/errors.log")
+    output_lines = []
+    curr_lineidx = 0
 
-    ret = os.system(f"bash -c \"mkfifo {ARTIFACTS_DATAPATH}/tic-tac-toe-pipe\"")
-    if ret != 0:
-        sys.exit(f"ERROR: Attempting to make the FIFO returned the error {ret}")
+    eprint("Running the tic-tac-toe game as a subprocess...")
+    tic_tac_toe_proc = subprocess.Popen(os.path.join(f"{ARTIFACTS_DATAPATH}", "tic-tac-toe.exe"), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    time.sleep(5)
+    eprint("The tic-tac-toe process has been started!")
 
-    (pid, _) = os.forkpty()
-    if pid == 0: #child
-        eprint("Starting the tic-tac-toe game in the child process...")
+def end_test(): 
+    eprint("Ending the test...")
+    tic_tac_toe_proc.kill()
+    out, errs = tic_tac_toe_proc.communicate()
+    eprint(f"The output after killing the tic-tac-toe process was {out}")
+    eprint(f"The errors after killing the tic-tac-toe process were {errs}")
 
-        ret = os.system(f"bash -c \"cat {ARTIFACTS_DATAPATH}/tic-tac-toe-pipe | {CODE_PATH}/bin/tic-tac-toe > {ARTIFACTS_DATAPATH}/errors.log\"")
-        if ret != 0:
-            sys.exit(f"ERROR: Attempting to run the tic-tac-toe game fed by the pipe produced the error {ret}")
-
-    else: #parent
-        eprint("Attempting to drive the tic-tac-toe game through the parent process...")
-        #ret = os.system("bash -c 'echo -e \"tl\\nmi\\ntc\\ncl\\ntr\\nq\" >> /tmp/tic-tac-toe-pipe'")
-        while True:
-            if len(MOVE_QUEUE) > 0:
-                move = MOVE_QUEUE.pop()
-                ret = os.system(f"bash -c 'echo -e \"{move}\" >> {ARTIFACTS_DATAPATH}/tic-tac-toe-pipe'")
-                if ret != 0:
-                    sys.exit(f"ERROR: Attempting to write a move to the tic-tac-toe game produced the error {ret}")
-                eprint("Move successfully fed into the tic-tac-toe game!")
-            time.sleep(5)
-
-def end_test(test_id: int): 
-    eprint("Ending the test with id: " + test_id)
-    os.system(f"ps -ef | grep tic-tac-toe | grep -v 'grep' >> {ARTIFACTS_DATAPATH}/tic-tac-toe-process-line")
-    f = open(f"{ARTIFACTS_DATAPATH}/tic-tac-toe-process-line")
-    lines = f.readlines()
-    main_line = lines[0]
-    result = re.match(pidlineRE, main_line)
-    if result != None:
-        pid = result.group(1)
-        eprint(f"Matched the tic-tac-toe line: Found a tic-tac-toe process running with pid {pid}!")
-        eprint("Ending the process now...")
-        os.kill(pid, 9)
-        eprint("The tic-tac-toe process has been terminated.")
-        if Path(f"{ARTIFACTS_DATAPATH}/tic-tac-toe-pipe").exists():
-            os.system(f"rm {ARTIFACTS_DATAPATH}/tic-tac-toe-pipe")
-
-def get_last_output_line() -> str:
-    global queue_is_empty
-    global queued_line
-
-    if not queue_is_empty:
-        queue_is_empty = True
-        ret = deepcopy(queued_line)
-        queued_line = None
+# Return the last output line. Return None if no such line exists. Otherwise return the line.
+def get_last_output_line():
+    global curr_lineidx
+    global output_lines
+    eprint("Getting the last output line...")
+    if curr_lineidx <= len(output_lines)-1:
+        ret = output_lines[curr_lineidx]
+        curr_lineidx += 1
+        print(f"Last output line = {ret}")
         return ret
-
-    # Read the last line of the file and return the next output line, queueing up a line if necessary
     else:
-
-        f = open(f"{ARTIFACTS_DATAPATH}/errors.log")
-        lines = f.readlines()
-
-        line = lines[-1]
-        result        = re.match(ingameinputRE, line)
-        secondresult  = re.match(endgameinputRE, line)
-        if result != None:
-            ret = f"Player {result.group(1)} ({result.group(2)}) to move:"
-            second_line = f"{result.group(3)}"
-
-            queue_is_empty = False
-            queued_line = deepcopy(second_line)
-
-            return ret
-
-        elif secondresult != None:
-            ret = (f"Type 'n' to start a new game, or 'q' or 'quit' to quit:")
-            second_line = f"{secondresult.group(1)}"
-
-            queue_is_empty = False
-            queued_line = deepcopy(second_line)
-
-            return ret
-
-        else:
-            return line 
+        print(f"Last output line = {None}")
+        return None
 
 def make_move(move: str):
-    global MOVE_QUEUE
-    eprint(f"Attempting to make the move: {move}")
-    MOVE_QUEUE.append(move)
+    global OUTPUT_FILE
+    global output_lines
+    try:
+        stdout_data, stderr_data = tic_tac_toe_proc.communicate(input=move, timeout=PROC_COMMUNICATION_TIMEOUT)
+        OUTPUT_FILE.write(stderr_data)
+        OUTPUT_FILE.write(stdout_data)
+
+        stderr_chunks = stderr_data.splitlines()
+        stdout_chunks = stdout_data.splitlines()
+        for stderr_chunk in stderr_chunks:
+            output_lines.append(stderr_chunk)
+        for stdout_chunk in stdout_chunks:
+            output_lines.append(stdout_chunk)
+
+    except TimeoutExpired:
+        eprint("ERROR, unable to communicate with the tic-tac-toe-process within the specified timeout. Killing the process now...")
+        tic_tac_toe_proc.kill()
+        out, errs = tic_tac_toe_proc.communicate()
+        eprint(f"The output after killing the tic-tac-toe process was: {out}")
+        eprint(f"The errors after killing the tic-tac-toe process were: {errs}")
