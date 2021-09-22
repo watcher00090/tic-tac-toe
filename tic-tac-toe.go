@@ -155,6 +155,11 @@ func main() {
 			fmt.Print(input_prompt_msg)
 		}
 
+		fi, _ := os.Stdin.Stat()
+		if (fi.Mode() & os.ModeCharDevice) == 0 {
+			fmt.Println("Stdin is from a pipe")
+		}
+
 		bytes, ioutil_err := ioutil.ReadAll(os.Stdin)
 		if len(bytes) == 0 || ioutil_err != nil {
 			time.Sleep(5 * time.Second)
