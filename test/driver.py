@@ -35,7 +35,7 @@ def start_new_test() -> int:
     curr_lineidx = 0
 
     eprint("Running the tic-tac-toe game as a subprocess...")
-    tic_tac_toe_proc = subprocess.Popen(os.path.join(f"{ARTIFACTS_DATAPATH}", "tic-tac-toe.exe"), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    tic_tac_toe_proc = subprocess.Popen(os.path.join(f"{ARTIFACTS_DATAPATH}", "tic-tac-toe"), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     time.sleep(5)
     eprint("The tic-tac-toe process has been started!")
 
