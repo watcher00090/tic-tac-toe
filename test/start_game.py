@@ -21,7 +21,7 @@ test_id = driver.start_new_test()
 
 # eprint("Passed first driver.get_last_output_line....")
 
-driver.make_move("tl")
+driver.make_move("tl\n")
 
 # eprint("Passed driver.make_move....")
 
