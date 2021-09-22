@@ -1,8 +1,8 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"strings"
 	"time"
@@ -139,7 +139,6 @@ func main() {
 	var move string
 	var move_orig string
 	numMoves := 0
-	scanner := bufio.NewScanner(os.Stdin)
 	var err error
 	var in string
 	var input string
@@ -156,26 +155,24 @@ func main() {
 			fmt.Print(input_prompt_msg)
 		}
 
-		res := scanner.Scan()
-		if !res {
+		bytes, ioutil_err := ioutil.ReadAll(os.Stdin)
+		if len(bytes) == 0 || ioutil_err != nil {
 			time.Sleep(5 * time.Second)
 			alreadyPrintedPrompt = true
 			continue
 		}
 
-		text := scanner.Text()
-
 		//fmt.Printf("in = %s.\n", in)
-		in = strings.Trim(text, "\n\r\t ")
-		if err != nil {
-			if strings.ToUpper(err.Error()) == "EOF" {
-				time.Sleep(5 * time.Second)
-				alreadyPrintedPrompt = true
-				continue
-			} else {
-				panic(fmt.Sprintf("ERROR: ReadLine returned the error: %s\n", err.Error()))
-			}
-		}
+		in = strings.Trim(string(bytes), "\n\r\t ")
+		// if err != nil {
+		// 	if strings.ToUpper(err.Error()) == "EOF" {
+		// 		time.Sleep(5 * time.Second)
+		// 		alreadyPrintedPrompt = true
+		// 		continue
+		// 	} else {
+		// 		panic(fmt.Sprintf("ERROR: ReadLine returned the error: %s\n", err.Error()))
+		// 	}
+		// }
 
 		if (expectingMove && continueOrExit) || (!expectingMove && !continueOrExit) {
 			panic("ERROR, exactly one of expectingMove and continueOrExit should be true!")
