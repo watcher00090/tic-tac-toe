@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -13,6 +14,8 @@ import (
 	//	"syscall"
 	//	"bytes"
 )
+
+var w *bufio.Writer = bufio.NewWriter(os.Stdout)
 
 var boardbase = "   \u2506   \u2506   " +
 	"-----------" +
@@ -116,7 +119,7 @@ func hasWon(board map[string]string, token string) bool {
 }
 
 func printBoard(board map[string]string) {
-	fmt.Printf("\n %s ┆ %s ┆ %s \n"+
+	writeToStdout("\n %s ┆ %s ┆ %s \n"+
 		"-----------\n"+
 		" %s ┆ %s ┆ %s \n"+
 		"-----------\n"+
@@ -131,6 +134,11 @@ func printBoard(board map[string]string) {
 		toDisplayString(board["bc"]),
 		toDisplayString(board["br"]),
 	)
+}
+func writeToStdout(a ...interface{}) (int, error) {
+	n, err := fmt.Fprintln(w, a...)
+	w.Flush()
+	return n, err
 }
 
 func main() {
@@ -152,13 +160,13 @@ func main() {
 
 	for {
 		if !alreadyPrintedPrompt {
-			fmt.Print(input_prompt_msg)
+			writeToStdout(input_prompt_msg)
 		}
 
-		fi, _ := os.Stdin.Stat()
-		if (fi.Mode() & os.ModeCharDevice) == 0 {
-			fmt.Println("Stdin is from a pipe")
-		}
+		// fi, _ := os.Stdin.Stat()
+		// if (fi.Mode() & os.ModeCharDevice) == 0 {
+		// 	fmt.Println("Stdin is from a pipe")
+		// }
 
 		bytes, ioutil_err := ioutil.ReadAll(os.Stdin)
 		if len(bytes) == 0 || ioutil_err != nil {
@@ -192,7 +200,7 @@ func main() {
 			move = niceify(move)
 
 			if move == "help" {
-				fmt.Println("\nMove commands: \n" +
+				writeToStdout("\nMove commands: \n" +
 					"tl, lt (top left)\n" +
 					"tc, ct (top center)\n" +
 					"tr, rt (top right)\n" +
@@ -207,8 +215,8 @@ func main() {
 				printBoard(board)
 				alreadyPrintedPrompt = false
 			} else if !isValidMove(move) {
-				fmt.Println("Error, invalid move command. Please try again.")
-				fmt.Println("\nMove commands: \n" +
+				writeToStdout("Error, invalid move command. Please try again.")
+				writeToStdout("\nMove commands: \n" +
 					"tl, lt (top left)\n" +
 					"tc, ct (top center)\n" +
 					"tr, rt (top right)\n" +
@@ -222,14 +230,14 @@ func main() {
 			} else {
 
 				if board[move] != "" {
-					fmt.Println("Error, the square you attempted to move to is already occupied! Please choose a different square and try again.")
+					writeToStdout("Error, the square you attempted to move to is already occupied! Please choose a different square and try again.")
 					alreadyPrintedPrompt = false
 					continue
 				}
 
 				board[move] = token
 				numMoves++
-				fmt.Print(fmt.Sprintf("Player %s (%s) moved to: %s\n", player, token, move_orig))
+				writeToStdout(fmt.Sprintf("Player %s (%s) moved to: %s", player, token, move_orig))
 
 				printBoard(board)
 
@@ -239,9 +247,9 @@ func main() {
 					expectingMove = false
 					continueOrExit = true
 					if has_won {
-						fmt.Printf("Player %s (%s) has won the game!\n", player, token)
+						writeToStdout(fmt.Sprintf("Player %s (%s) has won the game!", player, token))
 					} else {
-						fmt.Printf("Draw!\n")
+						writeToStdout("Draw!")
 					}
 					input_prompt_msg = "Type 'n' to start a new game, or 'q' or 'quit' to quit: "
 					alreadyPrintedPrompt = false
@@ -260,18 +268,18 @@ func main() {
 			input = strings.ToLower(input)
 
 			if input == "q" || input == "exit" || input == "quit" {
-				_, err_2 := fmt.Fprintln(os.Stdout, "Exiting", "the", "game...")
+				_, err_2 := writeToStdout("Exiting", "the", "game...")
 				exec.Command("echo 3 | sudo tee /proc/sys/vm/drop_caches")
-				fmt.Println("Exited successfully.")
+				writeToStdout("Exited successfully.")
 				// time.Sleep(5)
 				if err_2 == nil {
 					os.Exit(0)
 				} else {
-					fmt.Println("ERROR: Outputting a message prior to exiting produced the error: " + err.Error())
+					writeToStdout("ERROR: Outputting a message prior to exiting produced the error: " + err.Error())
 					os.Exit(1)
 				}
 			} else if input == "n" || input == "new game" || input == "new" {
-				fmt.Println("Starting new game....")
+				writeToStdout("Starting new game....")
 				clearBoard()
 				player = "one"
 				token = "X"
@@ -281,7 +289,7 @@ func main() {
 				input_prompt_msg = fmt.Sprintf("Player %s (%s) to move: ", player, token)
 				alreadyPrintedPrompt = false
 			} else {
-				fmt.Println("Invalid instruction, please try again...")
+				writeToStdout("Invalid instruction, please try again...")
 			}
 		}
 	}
