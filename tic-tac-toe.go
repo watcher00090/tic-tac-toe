@@ -139,7 +139,7 @@ func main() {
 	var move string
 	var move_orig string
 	numMoves := 0
-	reader := bufio.NewReader(os.Stdin)
+	scanner := bufio.NewScanner(os.Stdin)
 	var err error
 	var in string
 	var input string
@@ -149,17 +149,24 @@ func main() {
 	var continueOrExit = false
 	var alreadyPrintedPrompt = false
 
-
 	input_prompt_msg = fmt.Sprintf("Player %s (%s) to move: ", player, token)
 
-	for true {
+	for {
 		if !alreadyPrintedPrompt {
 			fmt.Print(input_prompt_msg)
 		}
 
-		in, err = reader.ReadString('\n')
+		res := scanner.Scan()
+		if !res {
+			time.Sleep(5 * time.Second)
+			alreadyPrintedPrompt = true
+			continue
+		}
+
+		text := scanner.Text()
+
 		//fmt.Printf("in = %s.\n", in)
-		in = strings.Trim(in, "\n\r\t ")
+		in = strings.Trim(text, "\n\r\t ")
 		if err != nil {
 			if strings.ToUpper(err.Error()) == "EOF" {
 				time.Sleep(5 * time.Second)
