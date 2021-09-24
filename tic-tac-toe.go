@@ -3,12 +3,9 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
-
-	//	"time"
-	"os/exec"
+	"time"
 	//	"os/signal"
 	//	"syscall"
 	//	"bytes"
@@ -50,8 +47,8 @@ func changeToken(token string) string {
 	}
 }
 
-func niceify(move string) string {
-	move = strings.ToLower(move)
+func niceify(in string) string {
+	move := strings.ToLower(in)
 	if move == "lt" {
 		return "tl"
 	}
@@ -145,60 +142,76 @@ func main() {
 	var token = "X"
 	var move string
 	var move_orig string
-	numMoves := 0
+	var numMoves = 0
 	var err error
 	var in string
 	var input string
 	var input_prompt_msg string
+	var move_command string
 
 	var expectingMove = true // when the user can make a move or submit a command, exactly one of the following is true: expectingMove, continueOrExit
 	var continueOrExit = false
-	var alreadyPrintedPrompt = false
+	var shouldPrintInputPrompt = true
+	var input_commands_chan chan string
 
 	input_prompt_msg = fmt.Sprintf("Player %s (%s) to move: ", player, token)
 
+	// The elements are the commands that the user has submitted
+	input_commands_chan = make(chan string)
+
+	// Thread that registers all input from stdin
+	go func(input_commands_chan chan string) {
+		for { // Continuously poll Stdin to check for new user input
+			fmt.Println("Trying to fetch data from stdin...")
+			//bytes, ioutil_err := io.ReadAll(os.Stdin)
+
+			var input_str string
+			n, io_err := fmt.Scanf("%s", &input_str)
+			if err != nil {
+				panic(err)
+			}
+
+			fmt.Println("Fetched data from stdin...")
+			if n == 0 { // no data inputted
+				shouldPrintInputPrompt = true
+			} else if io_err != nil { // I/O error
+				panic(fmt.Sprintf("ERROR: After calling ReadAll(stdin) in the input thread, the following error was returned: %s\n", io_err.Error()))
+			} else { // Write the first line of the input string to the input commands channel
+				//lines := strings.Split(input_str, "\n")
+				//first_command := lines[0]
+				input_commands_chan <- input_str
+				writeToStdout("Sent a move command to the game logic thread.")
+			}
+			// Sleep for 50 milliseconds before polling again
+			time.Sleep(time.Millisecond * 50)
+		}
+	}(input_commands_chan)
+
+	// Continously poll the input_commands_chan checking for new commands and if so respond accordingly
 	for {
-		if !alreadyPrintedPrompt {
+		// Print the prompt if we haven't already
+		if shouldPrintInputPrompt {
 			writeToStdout(input_prompt_msg)
 		}
 
-		// fi, _ := os.Stdin.Stat()
-		// if (fi.Mode() & os.ModeCharDevice) == 0 {
-		// 	fmt.Println("Stdin is from a pipe")
-		// }
+		writeToStdout("Polling the input commands channel....")
 
-		bytes, ioutil_err := ioutil.ReadAll(os.Stdin)
-		if len(bytes) == 0 || ioutil_err != nil {
-			alreadyPrintedPrompt = true
+		// Wait until a move command is submitted
+		move_command = <-input_commands_chan
 
-			continue
-		}
-
-		//fmt.Printf("in = %s.\n", in)
-		in = strings.Trim(string(bytes), "\n\r\t ")
-		// if err != nil {
-		// 	if strings.ToUpper(err.Error()) == "EOF" {
-		// 		time.Sleep(5 * time.Second)
-		// 		alreadyPrintedPrompt = true
-		// 		continue
-		// 	} else {
-		// 		panic(fmt.Sprintf("ERROR: ReadLine returned the error: %s\n", err.Error()))
-		// 	}
-		// }
+		// Remove spaces and whitespace from the input
+		in = strings.Trim(string(move_command), "\n\r\t ")
 
 		if (expectingMove && continueOrExit) || (!expectingMove && !continueOrExit) {
-			panic("ERROR, exactly one of expectingMove and continueOrExit should be true!")
+			panic("ERROR: Exactly one of expectingMove and continueOrExit should be true. We goofed, sorry. Exiting now...")
 		}
-
-		// fmt.Printf("in = %s.\n", in)
 
 		if expectingMove {
 
-			move = in
-			move_orig = move
-			move = niceify(move)
+			move = niceify(in)
 
-			if move == "help" {
+			if move == "help" || move == "h" || move == "info" || move == "i" {
+
 				writeToStdout("\nMove commands: \n" +
 					"tl, lt (top left)\n" +
 					"tc, ct (top center)\n" +
@@ -209,11 +222,15 @@ func main() {
 					"bl, lb (bottom left)\n" +
 					"bc, cb (bottom center)\n" +
 					"br, rb (bottom right)\n")
-				alreadyPrintedPrompt = false
-			} else if move == "board" {
+				shouldPrintInputPrompt = true
+
+			} else if move == "board" || move == "print" || move == "p" {
+
 				printBoard(board)
-				alreadyPrintedPrompt = false
+				shouldPrintInputPrompt = true
+
 			} else if !isValidMove(move) {
+
 				writeToStdout("Error, invalid move command. Please try again.")
 				writeToStdout("\nMove commands: \n" +
 					"tl, lt (top left)\n" +
@@ -225,12 +242,13 @@ func main() {
 					"bl, lb (bottom left)\n" +
 					"bc, cb (bottom center)\n" +
 					"br, rb (bottom right)\n")
-				alreadyPrintedPrompt = false
-			} else {
+				shouldPrintInputPrompt = true
 
+			} else {
+				// Make the move, update the game state
 				if board[move] != "" {
 					writeToStdout("Error, the square you attempted to move to is already occupied! Please choose a different square and try again.")
-					alreadyPrintedPrompt = false
+					shouldPrintInputPrompt = true
 					continue
 				}
 
@@ -243,6 +261,7 @@ func main() {
 				has_won := hasWon(board, token)
 
 				if has_won || (!has_won && numMoves == 9) {
+
 					expectingMove = false
 					continueOrExit = true
 					if has_won {
@@ -251,13 +270,16 @@ func main() {
 						writeToStdout("Draw!")
 					}
 					input_prompt_msg = "Type 'n' to start a new game, or 'q' or 'quit' to quit: "
-					alreadyPrintedPrompt = false
+					shouldPrintInputPrompt = true
+
 				} else {
+
 					player = changePlayer(player)
 					token = changeToken(token)
 
 					input_prompt_msg = fmt.Sprintf("Player %s (%s) to move: ", player, token)
-					alreadyPrintedPrompt = false
+					shouldPrintInputPrompt = true
+
 				}
 			}
 
@@ -268,13 +290,13 @@ func main() {
 
 			if input == "q" || input == "exit" || input == "quit" {
 				_, err_2 := writeToStdout("Exiting", "the", "game...")
-				exec.Command("echo 3 | sudo tee /proc/sys/vm/drop_caches")
+				// exec.Command("echo 3 | sudo tee /proc/sys/vm/drop_caches")
 				writeToStdout("Exited successfully.")
 				// time.Sleep(5)
 				if err_2 == nil {
 					os.Exit(0)
 				} else {
-					writeToStdout("ERROR: Outputting a message prior to exiting produced the error: " + err.Error())
+					writeToStdout("ERROR: Printing a message prior to exiting produced the error: " + err.Error())
 					os.Exit(1)
 				}
 			} else if input == "n" || input == "new game" || input == "new" {
@@ -286,10 +308,13 @@ func main() {
 				expectingMove = true
 				continueOrExit = false
 				input_prompt_msg = fmt.Sprintf("Player %s (%s) to move: ", player, token)
-				alreadyPrintedPrompt = false
+				shouldPrintInputPrompt = true
+				writeToStdout("Got here")
 			} else {
 				writeToStdout("Invalid instruction, please try again...")
 			}
 		}
+		// Sleep for 50 milliseconds before polling again
+		time.Sleep(time.Millisecond * 50)
 	}
 }
