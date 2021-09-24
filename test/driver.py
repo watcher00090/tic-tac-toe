@@ -16,8 +16,20 @@ TEST_START_HEADER = "------------------------------------------------\n"
 tic_tac_toe_proc = None
 PROC_COMMUNICATION_TIMEOUT = 15
 
-def print(s):
-    print(s, file=sys.stdout)
+class Unbuffered(object):
+   def __init__(self, stream):
+       self.stream = stream
+   def write(self, data):
+       self.stream.write(data)
+       self.stream.flush()
+   def writelines(self, datas):
+       self.stream.writelines(datas)
+       self.stream.flush()
+   def __getattr__(self, attr):
+       return getattr(self.stream, attr)
+
+# Ensure that stdout is unbuffered
+sys.stdout = Unbuffered(sys.stdout)
 
 def start_new_test() -> int:
     global OUTPUT_FILE

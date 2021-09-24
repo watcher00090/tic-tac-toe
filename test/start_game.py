@@ -4,41 +4,41 @@
 import driver
 import sys
 
-def eprint(s):
+def print(s):
     print(s, file=sys.stderr)
 
-# eprint("Starting a new test....")
+# print("Starting a new test....")
 test_id = driver.start_new_test()
 
-# eprint("Passed driver.start_new_test....")
+# print("Passed driver.start_new_test....")
 
 # if out != "Player one (X) to move: ":
-#     eprint("TEST FAILED")
-#     eprint("Desired output:")
-#     eprint("Player one (X) to move: '")
-#     eprint("Actual output:")
-#     eprint(out)
+#     print("TEST FAILED")
+#     print("Desired output:")
+#     print("Player one (X) to move: '")
+#     print("Actual output:")
+#     print(out)
 
-# eprint("Passed first driver.get_last_output_line....")
+# print("Passed first driver.get_last_output_line....")
 
 driver.make_move("tl\n")
 
-# eprint("Passed driver.make_move....")
+# print("Passed driver.make_move....")
 
 out = driver.get_last_output_line()
 
-# eprint("Passed second driver.get_last_output_line....")
+# print("Passed second driver.get_last_output_line....")
 
 # if out != "Player one (X) moved to tl":
-#     eprint("TEST FAILED")
-#     eprint("Desired output:")
-#     eprint("Player one moved to: tl")
-#     eprint("Actual output:")
-#     eprint(out)
+#     print("TEST FAILED")
+#     print("Desired output:")
+#     print("Player one moved to: tl")
+#     print("Actual output:")
+#     print(out)
 
-# eprint("TEST PASSED")
+# print("TEST PASSED")
 driver.end_test()
 
-# eprint("Passed driver.end_test....")
+# print("Passed driver.end_test....")
 
-# eprint("Test environment closed.")
+# print("Test environment closed.")
