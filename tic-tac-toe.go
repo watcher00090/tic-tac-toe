@@ -163,7 +163,7 @@ func main() {
 	go func(input_commands_chan chan string) {
 		for { // Continuously poll Stdin to check for new user input
 
-			fmt.Println("Trying to fetch data from stdin...")
+			// fmt.Println("Trying to fetch data from stdin...")
 			//bytes, ioutil_err := io.ReadAll(os.Stdin)
 
 			var input_str string
@@ -176,9 +176,9 @@ func main() {
 			} else { // Write the first line of the input string to the input commands channel
 				//lines := strings.Split(input_str, "\n")
 				//first_command := lines[0]
-				fmt.Println("Fetched data from stdin...")
+				// fmt.Println("Fetched data from stdin...")
 				input_commands_chan <- input_str
-				writeToStdout("Sent a move command to the game logic thread.")
+				// writeToStdout("Sent a move command to the game logic thread.")
 			}
 		}
 	}(input_commands_chan)
@@ -193,9 +193,9 @@ func main() {
 		// writeToStdout("Polling the input commands channel....")
 
 		// Wait until a move command is submitted
-		fmt.Println("main_thread: trying to read from the input commands channel....")
+		// fmt.Println("main_thread: trying to read from the input commands channel....")
 		move_command = <-input_commands_chan
-		fmt.Println("main_thread: successfully read from the input commands channel....")
+		// fmt.Println("main_thread: successfully read from the input commands channel....")
 
 		// Remove spaces and whitespace from the input
 		in = strings.Trim(string(move_command), "\n\r\t ")
