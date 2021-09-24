@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
-	"time"
 
 	//	"time"
 	"os/exec"
@@ -170,8 +169,8 @@ func main() {
 
 		bytes, ioutil_err := ioutil.ReadAll(os.Stdin)
 		if len(bytes) == 0 || ioutil_err != nil {
-			time.Sleep(5 * time.Second)
 			alreadyPrintedPrompt = true
+
 			continue
 		}
 
