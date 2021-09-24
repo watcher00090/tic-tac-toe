@@ -37,7 +37,7 @@ def start_new_test() -> int:
     eprint("Running the tic-tac-toe game as a subprocess...")
     paths = ["bin", "tic-tac-toe"]
 
-    tic_tac_toe_proc = subprocess.Popen(os.path.join(os.path.join(f"{CODE_PATH}", "bin"), "tic-tac-toe"), shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    tic_tac_toe_proc = subprocess.Popen(os.path.join(os.path.join(f"{CODE_PATH}", "bin"), "tic-tac-toe"), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     time.sleep(5)
     eprint("The tic-tac-toe process has been started!")
 
