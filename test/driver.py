@@ -16,7 +16,7 @@ TEST_START_HEADER = "------------------------------------------------\n"
 tic_tac_toe_proc = None
 PROC_COMMUNICATION_TIMEOUT = 15
 
-def eprint(s):
+def print(s):
     print(s, file=sys.stdout)
 
 def start_new_test() -> int:
@@ -26,7 +26,7 @@ def start_new_test() -> int:
     global curr_lineidx
 
     test_id = time.time_ns() # Epoch time in nanoseconds
-    eprint(f"Starting a test with ID {test_id}...")
+    print(f"Starting a test with ID {test_id}...")
 
     OUTPUT_FILE = open(os.path.join(f"{ARTIFACTS_DATAPATH}", "errors.log"), mode = 'a') # Append to the file if it already exists
     OUTPUT_FILE.write(TEST_START_HEADER)
@@ -34,25 +34,25 @@ def start_new_test() -> int:
     output_lines = []
     curr_lineidx = 0
 
-    eprint("Running the tic-tac-toe game as a subprocess...")
+    print("Running the tic-tac-toe game as a subprocess...")
     paths = ["bin", "tic-tac-toe"]
 
     tic_tac_toe_proc = subprocess.Popen(os.path.join(os.path.join(f"{CODE_PATH}", "bin"), "tic-tac-toe"), stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     time.sleep(5)
-    eprint("The tic-tac-toe process has been started!")
+    print("The tic-tac-toe process has been started!")
 
 def end_test(): 
-    eprint("Ending the test...")
+    print("Ending the test...")
     tic_tac_toe_proc.kill()
     out, errs = tic_tac_toe_proc.communicate()
-    eprint(f"The output after killing the tic-tac-toe process was {out}")
-    eprint(f"The errors after killing the tic-tac-toe process were {errs}")
+    print(f"The output after killing the tic-tac-toe process was {out}")
+    print(f"The errors after killing the tic-tac-toe process were {errs}")
 
 # Return the last output line. Return None if no such line exists. Otherwise return the line.
 def get_last_output_line():
     global curr_lineidx
     global output_lines
-    eprint("Getting the last output line...")
+    print("Getting the last output line...")
     if curr_lineidx <= len(output_lines)-1:
         ret = output_lines[curr_lineidx]
         curr_lineidx += 1
@@ -78,8 +78,8 @@ def make_move(move: str):
             output_lines.append(stdout_chunk)
 
     except TimeoutExpired:
-        eprint("ERROR, unable to communicate with the tic-tac-toe-process within the specified timeout. Killing the process now...")
+        print("ERROR, unable to communicate with the tic-tac-toe-process within the specified timeout. Killing the process now...")
         tic_tac_toe_proc.kill()
         out, errs = tic_tac_toe_proc.communicate()
-        eprint(f"The output after killing the tic-tac-toe process was: {out}")
-        eprint(f"The errors after killing the tic-tac-toe process were: {errs}")
+        print(f"The output after killing the tic-tac-toe process was: {out}")
+        print(f"The errors after killing the tic-tac-toe process were: {errs}")
