@@ -17,7 +17,7 @@ tic_tac_toe_proc = None
 PROC_COMMUNICATION_TIMEOUT = 15
 
 def eprint(s):
-    print(s, file=sys.stderr)
+    print(s, file=sys.stdout)
 
 def start_new_test() -> int:
     global OUTPUT_FILE
