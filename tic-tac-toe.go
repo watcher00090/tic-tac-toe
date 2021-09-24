@@ -114,11 +114,11 @@ func hasWon(board map[string]string, token string) bool {
 }
 
 func printBoard(board map[string]string) {
-	writeToStdout("\n %s ┆ %s ┆ %s \n"+
+	fmt.Printf("\n %s \u2506 %s \u2506 %s \n"+
 		"-----------\n"+
-		" %s ┆ %s ┆ %s \n"+
+		" %s \u2506 %s \u2506 %s \n"+
 		"-----------\n"+
-		" %s ┆ %s ┆ %s \n\n",
+		" %s \u2506 %s \u2506 %s \n\n",
 		toDisplayString(board["tl"]),
 		toDisplayString(board["tc"]),
 		toDisplayString(board["tr"]),
