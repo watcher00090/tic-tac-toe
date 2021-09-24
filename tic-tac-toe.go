@@ -222,6 +222,12 @@ func main() {
 					"br, rb (bottom right)\n")
 				shouldPrintInputPrompt = true
 
+			} else if move == "quit" || move == "q" || move == "exit" {
+
+				fmt.Println("Exiting", "the", "game...")
+				fmt.Println("Exited successfully.")
+				os.Exit(0)
+
 			} else if move == "board" || move == "print" || move == "p" {
 
 				shouldPrintInputPrompt = true
