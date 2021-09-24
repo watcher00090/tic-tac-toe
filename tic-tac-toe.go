@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 	"time"
@@ -131,6 +132,7 @@ func printBoard(board map[string]string) {
 		toDisplayString(board["br"]),
 	)
 }
+
 func writeToStdout(a ...interface{}) (int, error) {
 	n, err := fmt.Fprintln(w, a...)
 	w.Flush()
@@ -165,25 +167,22 @@ func main() {
 			fmt.Println("Trying to fetch data from stdin...")
 			//bytes, ioutil_err := io.ReadAll(os.Stdin)
 
-			var input_str string
-			n, io_err := fmt.Scanf("%s", &input_str)
+			bytes, io_err := io.ReadAll(os.Stdin)
 			if err != nil {
 				panic(err)
 			}
 
 			fmt.Println("Fetched data from stdin...")
-			if n == 0 { // no data inputted
+			if len(bytes) == 0 { // no data inputted
 				shouldPrintInputPrompt = true
 			} else if io_err != nil { // I/O error
 				panic(fmt.Sprintf("ERROR: After calling ReadAll(stdin) in the input thread, the following error was returned: %s\n", io_err.Error()))
 			} else { // Write the first line of the input string to the input commands channel
 				//lines := strings.Split(input_str, "\n")
 				//first_command := lines[0]
-				input_commands_chan <- input_str
+				input_commands_chan <- string(bytes)
 				writeToStdout("Sent a move command to the game logic thread.")
 			}
-			// Sleep for 50 milliseconds before polling again
-			time.Sleep(time.Millisecond * 50)
 		}
 	}(input_commands_chan)
 
