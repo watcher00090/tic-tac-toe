@@ -158,15 +158,11 @@ func main() {
 
 	// The elements are the commands that the user has submitted
 	input_commands_chan = make(chan string, 100) // Channel buffer size is 100 move commands
-	can_fetch_input := make(chan bool, 100)
-	can_fetch_input <- true
 
 	// Thread that registers all input from stdin
-	go func(input_commands_chan chan string, can_fetch_input chan bool) {
+	go func(input_commands_chan chan string) {
 		for { // Continuously poll Stdin to check for new user input
-			//var can_fetch = <-can_fetch_input
 
-			// if can_fetch {
 			fmt.Println("Trying to fetch data from stdin...")
 			//bytes, ioutil_err := io.ReadAll(os.Stdin)
 
@@ -184,9 +180,8 @@ func main() {
 				input_commands_chan <- input_str
 				writeToStdout("Sent a move command to the game logic thread.")
 			}
-			//}
 		}
-	}(input_commands_chan, can_fetch_input)
+	}(input_commands_chan)
 
 	// Continously poll the input_commands_chan checking for new commands and if so respond accordingly
 	for {
@@ -226,13 +221,11 @@ func main() {
 					"bc, cb (bottom center)\n" +
 					"br, rb (bottom right)\n")
 				shouldPrintInputPrompt = true
-				can_fetch_input <- true
 
 			} else if move == "board" || move == "print" || move == "p" {
 
 				shouldPrintInputPrompt = true
 				printBoard(board)
-				can_fetch_input <- true
 
 			} else if !isValidMove(move) {
 
@@ -254,7 +247,6 @@ func main() {
 				if board[move] != "" {
 					fmt.Println("Error, the square you attempted to move to is already occupied! Please choose a different square and try again.")
 					shouldPrintInputPrompt = true
-					can_fetch_input <- true
 					continue
 				}
 
@@ -277,7 +269,6 @@ func main() {
 					}
 					input_prompt_msg = "Type 'n' to start a new game, or 'q' or 'quit' to quit: "
 					shouldPrintInputPrompt = true
-					can_fetch_input <- true
 
 				} else {
 
@@ -286,7 +277,6 @@ func main() {
 
 					input_prompt_msg = fmt.Sprintf("Player %s (%s) to move: ", player, token)
 					shouldPrintInputPrompt = true
-					can_fetch_input <- true
 
 				}
 			}
@@ -317,11 +307,9 @@ func main() {
 				continueOrExit = false
 				input_prompt_msg = fmt.Sprintf("Player %s (%s) to move: ", player, token)
 				shouldPrintInputPrompt = true
-				can_fetch_input <- true
 				fmt.Println("Got here")
 			} else {
 				fmt.Println("Invalid instruction, please try again...")
-				can_fetch_input <- true
 			}
 		}
 		// Sleep for 50 milliseconds before polling again
