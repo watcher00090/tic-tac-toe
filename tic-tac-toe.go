@@ -172,9 +172,6 @@ func main() {
 
 			var input_str string
 			n, io_err := fmt.Scanf("%s", &input_str)
-			if err != nil {
-				panic(err)
-			}
 
 			if n == 0 { // no data inputted
 				shouldPrintInputPrompt = true
