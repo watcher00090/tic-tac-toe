@@ -114,11 +114,7 @@ func hasWon(board map[string]string, token string) bool {
 }
 
 func printBoard(board map[string]string) {
-	fmt.Printf("\n %s \u2506 %s \u2506 %s \n"+
-		"-----------\n"+
-		" %s \u2506 %s \u2506 %s \n"+
-		"-----------\n"+
-		" %s \u2506 %s \u2506 %s \n\n",
+	var inner string = fmt.Sprintf("\n %s \u2506 %s \u2506 %s \n-----------\n %s \u2506 %s \u2506 %s \n-----------\n %s \u2506 %s \u2506 %s \n\n",
 		toDisplayString(board["tl"]),
 		toDisplayString(board["tc"]),
 		toDisplayString(board["tr"]),
@@ -129,6 +125,7 @@ func printBoard(board map[string]string) {
 		toDisplayString(board["bc"]),
 		toDisplayString(board["br"]),
 	)
+	os.Stdout.Write([]byte(inner))
 }
 
 func writeToStdout(a ...interface{}) (int, error) {
