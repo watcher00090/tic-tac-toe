@@ -187,7 +187,7 @@ func main() {
 	for {
 		// Print the prompt if we haven't already
 		if shouldPrintInputPrompt {
-			writeToStdout(input_prompt_msg)
+			fmt.Print(input_prompt_msg)
 		}
 
 		// writeToStdout("Polling the input commands channel....")
@@ -205,7 +205,7 @@ func main() {
 		}
 
 		if expectingMove {
-
+			move_orig := in
 			move = niceify(in)
 
 			if move == "help" || move == "h" || move == "info" || move == "i" {
@@ -252,7 +252,7 @@ func main() {
 
 				board[move] = token
 				numMoves++
-				//writeToStdout(fmt.Sprintf("Player %s (%s) moved to: %s", player, token, move_orig))
+				fmt.Printf("Player %s (%s) moved to: %s\n", player, token, move_orig)
 
 				printBoard(board)
 
