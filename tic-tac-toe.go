@@ -236,23 +236,23 @@ func main() {
 
 			} else if !isValidMove(move) {
 
-				//writeToStdout("Error, invalid move command. Please try again.")
-				// writeToStdout("\nMove commands: \n" +
-				// 	"tl, lt (top left)\n" +
-				// 	"tc, ct (top center)\n" +
-				// 	"tr, rt (top right)\n" +
-				// 	"cl, lc (center left)\n" +
-				// 	"m, mi, cc, or c (center)\n" +
-				// 	"cr, rc (center right)\n" +
-				// 	"bl, lb (bottom left)\n" +
-				// 	"bc, cb (bottom center)\n" +
-				// 	"br, rb (bottom right)\n")
+				fmt.Println("Error, invalid move command. Please try again.")
+				fmt.Println("\nMove commands: \n" +
+					"tl, lt (top left)\n" +
+					"tc, ct (top center)\n" +
+					"tr, rt (top right)\n" +
+					"cl, lc (center left)\n" +
+					"m, mi, cc, or c (center)\n" +
+					"cr, rc (center right)\n" +
+					"bl, lb (bottom left)\n" +
+					"bc, cb (bottom center)\n" +
+					"br, rb (bottom right)\n")
 				shouldPrintInputPrompt = true
 
 			} else {
 				// Make the move, update the game state
 				if board[move] != "" {
-					//writeToStdout("Error, the square you attempted to move to is already occupied! Please choose a different square and try again.")
+					fmt.Println("Error, the square you attempted to move to is already occupied! Please choose a different square and try again.")
 					shouldPrintInputPrompt = true
 					can_fetch_input <- true
 					continue
