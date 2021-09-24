@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 	//	"os/signal"
 	//	"syscall"
 	//	"bytes"
@@ -317,6 +318,7 @@ func main() {
 			input_commands_chan <- input_str
 			// writeToStdout("Sent a move command to the game logic thread.")
 		}
+		time.Sleep(time.Millisecond * 80)
 	}
 
 }
