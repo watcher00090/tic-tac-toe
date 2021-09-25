@@ -33,18 +33,13 @@ sys.stdout = Unbuffered(sys.stdout)
 
 STDIN_PIPE_READ_END  = None
 STDIN_PIPE_WRITE_END  = None
-STDOUT_PIPE_READ_END = None
-STDOUT_PIPE_WRITE_END = None
-STDERR_PIPE_READ_END = None
-STDERR_PIPE_WRITE_END = None 
+OUTPUT_PIPE_READ_END = None
+OUTPUT_PIPE_WRITE_END = None
 
 STDIN_PIPE_READ_END_FILEHANDLE = None
 STDIN_PIPE_WRITE_END_FILEHANDLE = None
-STDOUT_PIPE_READ_END_FILEHANDLE = None
-STDOUT_PIPE_WRITE_END_FILEHANDLE = None
-STDERR_PIPE_READ_END_FILEHANDLE = None
-STDERR_PIPE_WRITE_END_FILEHANDLE = None
-
+OUTPUT_PIPE_READ_END_FILEHANDLE = None
+OUTPUT_PIPE_WRITE_END_FILEHANDLE = None
 
 def start_new_test() -> int:
     global OUTPUT_FILE
@@ -54,17 +49,13 @@ def start_new_test() -> int:
 
     global STDIN_PIPE_READ_END 
     global STDIN_PIPE_WRITE_END
-    global STDOUT_PIPE_READ_END
-    global STDOUT_PIPE_WRITE_END
-    global STDERR_PIPE_READ_END
-    global STDERR_PIPE_WRITE_END
+    global OUTPUT_PIPE_READ_END
+    global OUTPUT_PIPE_WRITE_END
 
     global STDIN_PIPE_READ_END_FILEHANDLE
     global STDIN_PIPE_WRITE_END_FILEHANDLE
-    global STDOUT_PIPE_READ_END_FILEHANDLE
-    global STDOUT_PIPE_WRITE_END_FILEHANDLE
-    global STDERR_PIPE_READ_END_FILEHANDLE
-    global STDERR_PIPE_WRITE_END_FILEHANDLE
+    global OUTPUT_PIPE_READ_END_FILEHANDLE
+    global OUTPUT_PIPE_WRITE_END_FILEHANDLE
 
     test_id = time.time_ns() # Epoch time in nanoseconds
     print(f"Starting a test with ID {test_id}...")
@@ -73,15 +64,12 @@ def start_new_test() -> int:
     OUTPUT_FILE.write(TEST_START_HEADER)
 
     STDIN_PIPE_READ_END, STDIN_PIPE_WRITE_END   = os.pipe()
-    STDOUT_PIPE_READ_END, STDOUT_PIPE_WRITE_END = os.pipe()
-    STDERR_PIPE_READ_END, STDERR_PIPE_WRITE_END = os.pipe()
+    OUTPUT_PIPE_READ_END, OUTPUT_PIPE_WRITE_END = os.pipe()
 
     STDIN_PIPE_READ_END_FILEHANDLE   = os.fdopen(STDIN_PIPE_READ_END, 'r')
     STDIN_PIPE_WRITE_END_FILEHANDLE  = os.fdopen(STDIN_PIPE_WRITE_END, 'w')
-    STDOUT_PIPE_READ_END_FILEHANDLE  = os.fdopen(STDOUT_PIPE_READ_END, 'r')
-    STDOUT_PIPE_WRITE_END_FILEHANDLE = os.fdopen(STDOUT_PIPE_WRITE_END, 'w')
-    STDERR_PIPE_READ_END_FILEHANDLE  = os.fdopen(STDERR_PIPE_READ_END, 'r')
-    STDERR_PIPE_WRITE_END_FILEHANDLE = os.fdopen(STDERR_PIPE_WRITE_END, 'w')
+    OUTPUT_PIPE_READ_END_FILEHANDLE  = os.fdopen(STDOUT_PIPE_READ_END, 'r')
+    OUTPUT_PIPE_WRITE_END_FILEHANDLE = os.fdopen(STDOUT_PIPE_WRITE_END, 'w')
 
     output_lines = []
     curr_lineidx = 0
@@ -91,8 +79,8 @@ def start_new_test() -> int:
 
     tic_tac_toe_proc = subprocess.Popen(os.path.join(os.path.join(f"{CODE_PATH}", "bin"), "tic-tac-toe"), 
         stdin=STDIN_PIPE_READ_END_FILEHANDLE, 
-        stdout=STDOUT_PIPE_WRITE_END_FILEHANDLE, 
-        stderr=STDERR_PIPE_WRITE_END_FILEHANDLE, 
+        stdout=OUTPUT_PIPE_WRITE_END_FILEHANDLE, 
+        stderr=OUTPUT_PIPE_WRITE_END_FILEHANDLE, 
         text=True
     )
     time.sleep(5)
@@ -101,39 +89,29 @@ def start_new_test() -> int:
 def end_test(): 
     global STDIN_PIPE_READ_END 
     global STDIN_PIPE_WRITE_END
-    global STDOUT_PIPE_READ_END
-    global STDOUT_PIPE_WRITE_END
-    global STDERR_PIPE_READ_END
-    global STDERR_PIPE_WRITE_END
+    global OUTPUT_PIPE_READ_END
+    global OUTPUT_PIPE_WRITE_END
     global STDIN_PIPE_READ_END_FILEHANDLE
     global STDIN_PIPE_WRITE_END_FILEHANDLE
-    global STDOUT_PIPE_READ_END_FILEHANDLE
-    global STDOUT_PIPE_WRITE_END_FILEHANDLE
-    global STDERR_PIPE_READ_END_FILEHANDLE
-    global STDERR_PIPE_WRITE_END_FILEHANDLE
+    global OUTPUT_PIPE_READ_END_FILEHANDLE
+    global OUTPUT_PIPE_WRITE_END_FILEHANDLE
 
     print("Closing the input and output pipes for the tic-tac-toe process...")
 
     os.close(STDIN_PIPE_READ_END)
     os.close(STDIN_PIPE_WRITE_END)
-    os.close(STDOUT_PIPE_READ_END)
-    os.close(STDOUT_PIPE_WRITE_END)
-    os.close(STDERR_PIPE_READ_END)
-    os.close(STDERR_PIPE_WRITE_END)
+    os.close(OUTPUT_PIPE_READ_END)
+    os.close(OUTPUT_PIPE_WRITE_END)
 
     STDIN_PIPE_READ_END = None
     STDIN_PIPE_WRITE_END = None
-    STDOUT_PIPE_READ_END = None
-    STDOUT_PIPE_WRITE_END = None
-    STDERR_PIPE_READ_END = None
-    STDERR_PIPE_WRITE_END = None
+    OUTPUT_PIPE_READ_END = None
+    OUTPUT_PIPE_WRITE_END = None
 
     STDIN_PIPE_READ_END_FILEHANDLE = None
     STDIN_PIPE_WRITE_END_FILEHANDLE = None
-    STDOUT_PIPE_READ_END_FILEHANDLE = None
-    STDOUT_PIPE_WRITE_END_FILEHANDLE = None
-    STDERR_PIPE_READ_END_FILEHANDLE = None
-    STDERR_PIPE_WRITE_END_FILEHANDLE = None
+    OUTPUT_PIPE_READ_END_FILEHANDLE = None
+    OUTPUT_PIPE_WRITE_END_FILEHANDLE = None
 
     print("Ending the test...")
     tic_tac_toe_proc.kill()
@@ -163,21 +141,15 @@ def make_move(move: str):
 
     global STDIN_PIPE_READ_END_FILEHANDLE
     global STDIN_PIPE_WRITE_END_FILEHANDLE
-    global STDOUT_PIPE_READ_END_FILEHANDLE
-    global STDOUT_PIPE_WRITE_END_FILEHANDLE
-    global STDERR_PIPE_READ_END_FILEHANDLE
-    global STDERR_PIPE_WRITE_END_FILEHANDLE
+    global OUTPUT_PIPE_READ_END_FILEHANDLE
+    global OUTPUT_PIPE_WRITE_END_FILEHANDLE
 
     STDIN_PIPE_WRITE_END_FILEHANDLE.write(move)
     print(f"Successfully pushed the move into the pipe...")
-    stdout_str = STDOUT_PIPE_READ_END_FILEHANDLE.readline()
-    print(f"Successfully got the stdout from the stdout pipe...")
-    stderr_str = STDOUT_PIPE_READ_END_FILEHANDLE.readline()
-    print(f"Successfully got the stderr from the stderr pipe...")
-    OUTPUT_FILE.write(stderr_str)
-    print(f"Successfully wrote the stderr results to the output file....")
-    OUTPUT_FILE.write(stdout_str)
-    print(f"Successfully wrote the stdout results to the output file....")
+    output_str = OUTPUT_PIPE_READ_END_FILEHANDLE.readline()
+    print(f"Successfully got the next line of output from the output pipe...")
+    OUTPUT_FILE.write(output_str)
+    print(f"Successfully wrote the next line of output to the output file....")
 
         # stderr_chunks = stderr_str.splitlines()
         # stdout_chunks = stdout_str.splitlines()
