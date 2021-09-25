@@ -145,6 +145,7 @@ def make_move(move: str):
 
     os.write(STDIN_PIPE_WRITE_END_FD, move.encode('utf-8'))
     print(f"Successfully pushed the move into the pipe...")
+    time.sleep(10)
 
     line = ""
     while True:
