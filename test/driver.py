@@ -31,15 +31,13 @@ class Unbuffered(object):
 # Ensure that stdout is unbuffered
 sys.stdout = Unbuffered(sys.stdout)
 
-STDIN_PIPE_READ_END  = None
-STDIN_PIPE_WRITE_END  = None
-OUTPUT_PIPE_READ_END = None
-OUTPUT_PIPE_WRITE_END = None
+STDIN_PIPE  = None
+OUTPUT_PIPE = None
 
-STDIN_PIPE_READ_END_FILEHANDLE = None
-STDIN_PIPE_WRITE_END_FILEHANDLE = None
-OUTPUT_PIPE_READ_END_FILEHANDLE = None
-OUTPUT_PIPE_WRITE_END_FILEHANDLE = None
+STDIN_PIPE_READ_END_FD= None
+STDIN_PIPE_WRITE_END_FD= None
+OUTPUT_PIPE_READ_END_FD= None
+OUTPUT_PIPE_WRITE_END_FD= None
 
 def start_new_test() -> int:
     global OUTPUT_FILE
@@ -47,15 +45,13 @@ def start_new_test() -> int:
     global output_lines
     global curr_lineidx
 
-    global STDIN_PIPE_READ_END 
-    global STDIN_PIPE_WRITE_END
-    global OUTPUT_PIPE_READ_END
-    global OUTPUT_PIPE_WRITE_END
+    global STDIN_PIPE
+    global OUTPUT_PIPE
 
-    global STDIN_PIPE_READ_END_FILEHANDLE
-    global STDIN_PIPE_WRITE_END_FILEHANDLE
-    global OUTPUT_PIPE_READ_END_FILEHANDLE
-    global OUTPUT_PIPE_WRITE_END_FILEHANDLE
+    global STDIN_PIPE_READ_END_FD
+    global STDIN_PIPE_WRITE_END_FD
+    global OUTPUT_PIPE_READ_END_FD
+    global OUTPUT_PIPE_WRITE_END_FD
 
     test_id = time.time_ns() # Epoch time in nanoseconds
     print(f"Starting a test with ID {test_id}...")
@@ -63,13 +59,13 @@ def start_new_test() -> int:
     OUTPUT_FILE = open(os.path.join(f"{ARTIFACTS_DATAPATH}", "errors.log"), mode = 'a') # Append to the file if it already exists
     OUTPUT_FILE.write(TEST_START_HEADER)
 
-    STDIN_PIPE_READ_END, STDIN_PIPE_WRITE_END   = os.pipe()
-    OUTPUT_PIPE_READ_END, OUTPUT_PIPE_WRITE_END = os.pipe()
+    STDIN_PIPE  = os.mkfifo("STDIN_PIPE")
+    OUTPUT_PIPE = os.mkfifo("OUTPUT_PIPE")
 
-    STDIN_PIPE_READ_END_FILEHANDLE   = os.fdopen(STDIN_PIPE_READ_END, 'r')
-    STDIN_PIPE_WRITE_END_FILEHANDLE  = os.fdopen(STDIN_PIPE_WRITE_END, 'a')
-    OUTPUT_PIPE_READ_END_FILEHANDLE  = os.fdopen(OUTPUT_PIPE_READ_END, 'r')
-    OUTPUT_PIPE_WRITE_END_FILEHANDLE = os.fdopen(OUTPUT_PIPE_WRITE_END, 'a')
+    STDIN_PIPE_READ_END_FD  = os.open(STDIN_PIPE, os.O_RDONLY)
+    STDIN_PIPE_WRITE_END_FD = os.open(STDIN_PIPE, os.O_WRONLY)
+    OUTPUT_PIPE_READ_END_FD = os.open(OUTPUT_PIPE, os.O_RDONLY)
+    OUTPUT_PIPE_WRITE_END_FD= os.open(OUTPUT_PIPE, os.O_WRONLY)
 
     output_lines = []
     curr_lineidx = 0
@@ -78,8 +74,8 @@ def start_new_test() -> int:
     paths = ["bin", "tic-tac-toe"]
 
     tic_tac_toe_proc = subprocess.Popen(os.path.join(os.path.join(f"{CODE_PATH}", "bin"), "tic-tac-toe"), 
-        stdin=STDIN_PIPE_READ_END_FILEHANDLE, 
-        stdout=OUTPUT_PIPE_WRITE_END_FILEHANDLE, 
+        stdin=STDIN_PIPE_READ_END_FD, 
+        stdout=OUTPUT_PIPE_WRITE_END_FD, 
         # stderr=OUTPUT_PIPE_WRITE_END_FILEHANDLE, 
         text=True
     )
@@ -87,31 +83,22 @@ def start_new_test() -> int:
     print("The tic-tac-toe process has been started!")
 
 def end_test(): 
-    global STDIN_PIPE_READ_END 
-    global STDIN_PIPE_WRITE_END
-    global OUTPUT_PIPE_READ_END
-    global OUTPUT_PIPE_WRITE_END
-    global STDIN_PIPE_READ_END_FILEHANDLE
-    global STDIN_PIPE_WRITE_END_FILEHANDLE
-    global OUTPUT_PIPE_READ_END_FILEHANDLE
-    global OUTPUT_PIPE_WRITE_END_FILEHANDLE
+    global STDIN_PIPE_READ_END_FD
+    global STDIN_PIPE_WRITE_END_FD
+    global OUTPUT_PIPE_READ_END_FD
+    global OUTPUT_PIPE_WRITE_END_FD
 
     print("Closing the input and output pipes for the tic-tac-toe process...")
 
-    os.close(STDIN_PIPE_READ_END)
-    os.close(STDIN_PIPE_WRITE_END)
-    os.close(OUTPUT_PIPE_READ_END)
-    os.close(OUTPUT_PIPE_WRITE_END)
+    os.close(STDIN_PIPE_READ_END_FD)
+    os.close(STDIN_PIPE_WRITE_END_FD)
+    os.close(OUTPUT_PIPE_READ_END_FD)
+    os.close(OUTPUT_PIPE_WRITE_END_FD)
 
-    STDIN_PIPE_READ_END = None
-    STDIN_PIPE_WRITE_END = None
-    OUTPUT_PIPE_READ_END = None
-    OUTPUT_PIPE_WRITE_END = None
-
-    STDIN_PIPE_READ_END_FILEHANDLE = None
-    STDIN_PIPE_WRITE_END_FILEHANDLE = None
-    OUTPUT_PIPE_READ_END_FILEHANDLE = None
-    OUTPUT_PIPE_WRITE_END_FILEHANDLE = None
+    STDIN_PIPE_READ_END_FD   = None
+    STDIN_PIPE_WRITE_END_FD  = None
+    OUTPUT_PIPE_READ_END_FD  = None
+    OUTPUT_PIPE_WRITE_END_FD = None
 
     print("Ending the test...")
     tic_tac_toe_proc.kill()
@@ -139,17 +126,19 @@ def make_move(move: str):
     global OUTPUT_FILE
     global output_lines
 
-    global STDIN_PIPE_READ_END_FILEHANDLE
-    global STDIN_PIPE_WRITE_END_FILEHANDLE
-    global OUTPUT_PIPE_READ_END_FILEHANDLE
-    global OUTPUT_PIPE_WRITE_END_FILEHANDLE
+    global STDIN_PIPE_READ_END_FD
+    global STDIN_PIPE_WRITE_END_FD
+    global OUTPUT_PIPE_READ_END_FD
+    global OUTPUT_PIPE_WRITE_END_FD
 
-    STDIN_PIPE_WRITE_END_FILEHANDLE.write(move)
+    os.write(STDIN_PIPE_WRITE_END_FD, move.encode('utf-8'))
     print(f"Successfully pushed the move into the pipe...")
-    last_line = OUTPUT_PIPE_READ_END_FILEHANDLE.readline()
+    last_line = OUTPUT_PIPE_READ_END_FD.readline()
     print(f"Successfully got the next line of output from the output pipe...")
     OUTPUT_FILE.write(last_line)
     print(f"Successfully wrote the next line of output to the output file....")
+    
+    output_lines.append(last_line)
 
         # stderr_chunks = stderr_str.splitlines()
         # stdout_chunks = stdout_str.splitlines()
@@ -157,10 +146,3 @@ def make_move(move: str):
         #     output_lines.append(stderr_chunk)
         # for stdout_chunk in stdout_chunks:
         #     output_lines.append(stdout_chunk)
-
-    # except TimeoutExpired:
-    #     print("ERROR, unable to communicate with the tic-tac-toe-process within the specified timeout. Killing the process now...")
-    #     tic_tac_toe_proc.kill()
-    #     out, errs = tic_tac_toe_proc.communicate()
-    #     print(f"The output after killing the tic-tac-toe process was: {out}")
-    #     print(f"The errors after killing the tic-tac-toe process were: {errs}")
