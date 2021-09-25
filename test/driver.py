@@ -65,9 +65,9 @@ def start_new_test() -> int:
     os.system(f"mkfifo {OUTPUT_PIPE}")
     print("Created the pipes successfully.")
 
-    STDIN_PIPE_WRITE_END_FD  = os.open(STDIN_PIPE,  os.O_WRONLY)
+    STDIN_PIPE_WRITE_END_FD  = os.open(STDIN_PIPE,  os.O_WRONLY | os.NONBLOCk)
     print("Opened the write-end of the STDIN pipe successfully.")
-    OUTPUT_PIPE_WRITE_END_FD = os.open(OUTPUT_PIPE, os.O_WRONLY)
+    OUTPUT_PIPE_WRITE_END_FD = os.open(OUTPUT_PIPE, os.O_WRONLY | os.NONBLOCK)
     print("Opened the write-end of the output pipe successfully.")
     STDIN_PIPE_READ_END_FD   = os.open(STDIN_PIPE,  os.O_RDONLY)
     print("Opened the read-end of the STDIN pipe successfully.")
