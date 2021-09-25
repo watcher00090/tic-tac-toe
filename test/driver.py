@@ -146,10 +146,10 @@ def make_move(move: str):
 
     STDIN_PIPE_WRITE_END_FILEHANDLE.write(move)
     print(f"Successfully pushed the move into the pipe...")
-    for l in OUTPUT_PIPE_READ_END_FILEHANDLE:
-        print(f"Successfully got the next line of output from the output pipe...")
-        OUTPUT_FILE.write(l)
-        print(f"Successfully wrote the next line of output to the output file....")
+    last_line = OUTPUT_PIPE_READ_END_FILEHANDLE.readline()
+    print(f"Successfully got the next line of output from the output pipe...")
+    OUTPUT_FILE.write(last_line)
+    print(f"Successfully wrote the next line of output to the output file....")
 
         # stderr_chunks = stderr_str.splitlines()
         # stdout_chunks = stdout_str.splitlines()
