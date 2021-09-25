@@ -169,12 +169,15 @@ def make_move(move: str):
     global STDERR_PIPE_WRITE_END_FILEHANDLE
 
     STDIN_PIPE_WRITE_END_FILEHANDLE.write(move)
+    print(f"Successfully pushed the move into the pipe...")
     stdout_str = STDOUT_PIPE_READ_END_FILEHANDLE.readline()
+    print(f"Successfully got the stdout from the stdout pipe...")
     stderr_str = STDOUT_PIPE_READ_END_FILEHANDLE.readline()
+    print(f"Successfully got the stderr from the stderr pipe...")
     OUTPUT_FILE.write(stderr_str)
+    print(f"Successfully wrote the stderr results to the output file....")
     OUTPUT_FILE.write(stdout_str)
-
-    print(f"Successfully made the move and wrote the results to the output file....")
+    print(f"Successfully wrote the stdout results to the output file....")
 
         # stderr_chunks = stderr_str.splitlines()
         # stdout_chunks = stdout_str.splitlines()
