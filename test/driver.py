@@ -145,7 +145,9 @@ def make_move(move: str):
 
     line = ""
     while True:
+        print(f"trying to read a byte out of the output pipe...")
         c = str(os.read(OUTPUT_PIPE_READ_END_FD, 1))
+        print(f"Read a byte out of the output pipe...")
         if c == '\n' or c == '\r\n' or c == '\r' or c == '\x03' or c == '\x04' or c == '\x05' or c == '\x17' or c == '\x19':
             break
         else:
