@@ -20,7 +20,6 @@ RUN bash -c 'echo "export PATH=$PATH:/usr/local/go/bin" >> /etc/profile'
 ENV PATH="$PATH:/usr/local/go/bin"
 ENV CODE_PATH="/home/tic-tac-toe"
 
-RUN mkdir test-artifacts
 RUN mkdir src
 RUN mkdir bin
 
