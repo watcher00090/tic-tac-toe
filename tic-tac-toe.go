@@ -126,7 +126,7 @@ func printBoard(board map[string]string) {
 		toDisplayString(board["bc"]),
 		toDisplayString(board["br"]),
 	)
-	os.Stdout.Write([]byte(inner))
+	writeToStdout(inner)
 }
 
 func writeToStdout(a ...interface{}) (int, error) {
@@ -159,7 +159,7 @@ func main() {
 		for {
 			// Print the prompt if we haven't already
 			if shouldPrintInputPrompt {
-				fmt.Print(input_prompt_msg)
+				writeToStdout(input_prompt_msg)
 			}
 
 			// writeToStdout("Polling the input commands channel....")
@@ -182,7 +182,7 @@ func main() {
 
 				if move == "help" || move == "h" || move == "info" || move == "i" {
 
-					fmt.Println("\nMove commands: \n" +
+					writeToStdout("\nMove commands: \n" +
 						"tl, lt (top left)\n" +
 						"tc, ct (top center)\n" +
 						"tr, rt (top right)\n" +
@@ -207,8 +207,8 @@ func main() {
 
 				} else if !isValidMove(move) {
 
-					fmt.Println("Error, invalid move command. Please try again.")
-					fmt.Println("\nMove commands: \n" +
+					writeToStdout("Error, invalid move command. Please try again.")
+					writeToStdout("\nMove commands: \n" +
 						"tl, lt (top left)\n" +
 						"tc, ct (top center)\n" +
 						"tr, rt (top right)\n" +
@@ -223,14 +223,14 @@ func main() {
 				} else {
 					// Make the move, update the game state
 					if board[move] != "" {
-						fmt.Println("Error, the square you attempted to move to is already occupied! Please choose a different square and try again.")
+						writeToStdout("Error, the square you attempted to move to is already occupied! Please choose a different square and try again.")
 						shouldPrintInputPrompt = true
 						continue
 					}
 
 					board[move] = token
 					numMoves++
-					fmt.Printf("Player %s (%s) moved to: %s\n", player, token, move_orig)
+					writeToStdout(fmt.Sprintf("Player %s (%s) moved to: %s\n", player, token, move_orig))
 
 					printBoard(board)
 
@@ -241,9 +241,9 @@ func main() {
 						expectingMove = false
 						continueOrExit = true
 						if has_won {
-							fmt.Println(fmt.Sprintf("Player %s (%s) has won the game!", player, token))
+							writeToStdout(fmt.Sprintf("Player %s (%s) has won the game!", player, token))
 						} else {
-							fmt.Println("Draw!")
+							writeToStdout("Draw!")
 						}
 						input_prompt_msg = "Type 'n' to start a new game, or 'q' or 'quit' to quit: "
 						shouldPrintInputPrompt = true
@@ -265,18 +265,18 @@ func main() {
 				input = strings.ToLower(input)
 
 				if input == "q" || input == "exit" || input == "quit" {
-					_, err_2 := fmt.Println("Exiting", "the", "game...")
+					_, err_2 := writeToStdout("Exiting", "the", "game...")
 					// exec.Command("echo 3 | sudo tee /proc/sys/vm/drop_caches")
-					fmt.Println("Exited successfully.")
+					writeToStdout("Exited successfully.")
 					// time.Sleep(5)
 					if err_2 == nil {
 						os.Exit(0)
 					} else {
-						fmt.Println("ERROR: Printing a message prior to exiting produced the error: " + err.Error())
+						writeToStdout("ERROR: Printing a message prior to exiting produced the error: " + err.Error())
 						os.Exit(1)
 					}
 				} else if input == "n" || input == "new game" || input == "new" {
-					fmt.Println("Starting new game....")
+					writeToStdout("Starting new game....")
 					clearBoard()
 					player = "one"
 					token = "X"
@@ -285,9 +285,8 @@ func main() {
 					continueOrExit = false
 					input_prompt_msg = fmt.Sprintf("Player %s (%s) to move: ", player, token)
 					shouldPrintInputPrompt = true
-					fmt.Println("Got here")
 				} else {
-					fmt.Println("Invalid instruction, please try again...")
+					writeToStdout("Invalid instruction, please try again...")
 				}
 			}
 			// Sleep for 50 milliseconds before polling again
