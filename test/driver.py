@@ -68,8 +68,8 @@ def start_new_test() -> int:
 
     STDIN_PIPE_READ_END_FILEHANDLE   = os.fdopen(STDIN_PIPE_READ_END, 'r')
     STDIN_PIPE_WRITE_END_FILEHANDLE  = os.fdopen(STDIN_PIPE_WRITE_END, 'w')
-    OUTPUT_PIPE_READ_END_FILEHANDLE  = os.fdopen(STDOUT_PIPE_READ_END, 'r')
-    OUTPUT_PIPE_WRITE_END_FILEHANDLE = os.fdopen(STDOUT_PIPE_WRITE_END, 'w')
+    OUTPUT_PIPE_READ_END_FILEHANDLE  = os.fdopen(OUTPUT_PIPE_READ_END, 'r')
+    OUTPUT_PIPE_WRITE_END_FILEHANDLE = os.fdopen(OUTPUT_PIPE_WRITE_END, 'w')
 
     output_lines = []
     curr_lineidx = 0
