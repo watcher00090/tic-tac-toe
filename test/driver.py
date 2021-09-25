@@ -86,7 +86,9 @@ def start_new_test() -> int:
     print("Running the tic-tac-toe game as a subprocess...")
     paths = ["bin", "tic-tac-toe"]
 
-    tic_tac_toe_proc = subprocess.Popen(os.path.join(os.path.join(f"{CODE_PATH}", "bin"), "tic-tac-toe"), 
+    tic_tac_toe_binary_path = os.path.join(os.path.join(f"{CODE_PATH}", "bin"), "tic-tac-toe")
+
+    tic_tac_toe_proc = subprocess.Popen(f"{tic_tac_toe_binary_path} | tee -a {OUTPUT_FILE}", 
         stdin=STDIN_PIPE_READ_END_FD, 
         stdout=OUTPUT_PIPE_WRITE_END_FD, 
         # stderr=OUTPUT_PIPE_WRITE_END_FILEHANDLE, 
@@ -121,16 +123,19 @@ def end_test():
 
 # Return the last output line. Return None if no such line exists. Otherwise return the line.
 def get_last_output_line():
-    global curr_lineidx
-    global output_lines
-    print("Getting the last output line...")
-    if curr_lineidx <= len(output_lines)-1:
-        ret = output_lines[curr_lineidx]
-        curr_lineidx += 1
-        print(f"Last output line = {ret}")
-        return ret
-    else:
-        print(f"Last output line = {None}")
+    try:
+        line = ""
+        while True:
+            c = str(os.read(OUTPUT_PIPE_READ_END_FD, 1), 'utf-8')
+            print(f"Read the following byte out of the output pipe: {c}")
+            if c == 0 or c == "\n" or c == "\r\n" or c == "\r" or c == "\x03" or c == "\x04" or c == "\x05" or c == "\x17" or c == "\x19":   
+                break
+            else:
+                line += c
+        return line
+
+    except BlockingIOError:
+        print("Oops, caught a BlockingIOError, no more lines to be read. Returning None.")
         return None
 
 def make_move(move: str):
@@ -148,21 +153,22 @@ def make_move(move: str):
     print(f"Successfully pushed the move into the pipe...")
     time.sleep(10)
 
-    line = ""
-    while True:
-        # print(f"trying to read a byte out of the output pipe...")
-        c = str(os.read(OUTPUT_PIPE_READ_END_FD, 1), 'utf-8')
-        # print(f"Read the following byte out of the output pipe: {c}")
-        if c == "\n" or c == "\r\n" or c == "\r" or c == "\x03" or c == "\x04" or c == "\x05" or c == "\x17" or c == "\x19":   
-            break
-        else:
-            line += c
+    output = ""
+    try:
+        while True:
+            # print(f"trying to read a byte out of the output pipe...")
+            c = str(os.read(OUTPUT_PIPE_READ_END_FD, 1), 'utf-8')
+            OUTPUT_FILE.write(c)
+            # print(f"Read the following byte out of the output pipe: {c}")
+            # if c == "\n" or c == "\r\n" or c == "\r" or c == "\x03" or c == "\x04" or c == "\x05" or c == "\x17" or c == "\x19":   
+            #    break
+            #else:
+            #    line += c
 
-    print(f"Successfully got the next line of output from the output pipe...")
-    OUTPUT_FILE.write(line)
-    print(f"Successfully wrote the next line of output to the output file....")
-    
-    output_lines.append(line)
+    except BlockingIOError:
+        print("Reached the end of what has been written to the pipe. Continuing on....")
+
+    # output_lines.append(line)
 
         # stderr_chunks = stderr_str.splitlines()
         # stdout_chunks = stdout_str.splitlines()
