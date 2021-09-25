@@ -146,7 +146,7 @@ def make_move(move: str):
 
     STDIN_PIPE_WRITE_END_FILEHANDLE.write(move)
     print(f"Successfully pushed the move into the pipe...")
-    output_str = OUTPUT_PIPE_READ_END_FILEHANDLE.readline()
+    output_str = OUTPUT_PIPE_READ_END_FILEHANDLE.read()
     print(f"Successfully got the next line of output from the output pipe...")
     OUTPUT_FILE.write(output_str)
     print(f"Successfully wrote the next line of output to the output file....")
