@@ -34,10 +34,10 @@ sys.stdout = Unbuffered(sys.stdout)
 STDIN_PIPE  = "STDIN_PIPE"
 OUTPUT_PIPE = "OUTPUT_PIPE"
 
-STDIN_PIPE_READ_END_FD= None
-STDIN_PIPE_WRITE_END_FD= None
-OUTPUT_PIPE_READ_END_FD= None
-OUTPUT_PIPE_WRITE_END_FD= None
+STDIN_PIPE_READ_END_FILEHANDLE   = None
+STDIN_PIPE_WRITE_END_FD  = None
+OUTPUT_PIPE_READ_END_FILEHANDLE  = None
+OUTPUT_PIPE_WRITE_END_FD = None
 
 def start_new_test() -> int:
     global OUTPUT_FILE
@@ -48,9 +48,9 @@ def start_new_test() -> int:
     global STDIN_PIPE
     global OUTPUT_PIPE
 
-    global STDIN_PIPE_READ_END_FD
+    global STDIN_PIPE_READ_END_FILEHANDLE
     global STDIN_PIPE_WRITE_END_FD
-    global OUTPUT_PIPE_READ_END_FD
+    global OUTPUT_PIPE_READ_END_FILEHANDLE
     global OUTPUT_PIPE_WRITE_END_FD
 
     test_id = time.time_ns() # Epoch time in nanoseconds
@@ -65,11 +65,11 @@ def start_new_test() -> int:
     os.system(f"mkfifo {OUTPUT_PIPE}")
     print("Created the pipes successfully.")
 
-    STDIN_PIPE_READ_END_FD  = os.open(STDIN_PIPE, os.O_RDONLY)
+    STDIN_PIPE_READ_END_FILEHANDLE  = open(STDIN_PIPE, 'r')
     print("Opened the read-end of the STDIN pipe successfully.")
     STDIN_PIPE_WRITE_END_FD = os.open(STDIN_PIPE, os.O_WRONLY)
     print("Opened the write-end of the STDIN pipe successfully.")
-    OUTPUT_PIPE_READ_END_FD = os.open(OUTPUT_PIPE, os.O_RDONLY)
+    OUTPUT_PIPE_READ_END_FILEHANDLE = open(OUTPUT_PIPE, 'r')
     print("Opened the read-end of the output pipe successfully.")
     OUTPUT_PIPE_WRITE_END_FD= os.open(OUTPUT_PIPE, os.O_WRONLY)
     print("Opened the write-end of the output pipe successfully.")
@@ -81,7 +81,7 @@ def start_new_test() -> int:
     paths = ["bin", "tic-tac-toe"]
 
     tic_tac_toe_proc = subprocess.Popen(os.path.join(os.path.join(f"{CODE_PATH}", "bin"), "tic-tac-toe"), 
-        stdin=STDIN_PIPE_READ_END_FD, 
+        stdin=STDIN_PIPE_READ_END_FILEHANDLE, 
         stdout=OUTPUT_PIPE_WRITE_END_FD, 
         # stderr=OUTPUT_PIPE_WRITE_END_FILEHANDLE, 
         text=True
@@ -90,21 +90,21 @@ def start_new_test() -> int:
     print("The tic-tac-toe process has been started!")
 
 def end_test(): 
-    global STDIN_PIPE_READ_END_FD
+    global STDIN_PIPE_READ_END_FILEHANDLE
     global STDIN_PIPE_WRITE_END_FD
-    global OUTPUT_PIPE_READ_END_FD
+    global OUTPUT_PIPE_READ_END_FILEHANDLE
     global OUTPUT_PIPE_WRITE_END_FD
 
     print("Closing the input and output pipes for the tic-tac-toe process...")
 
-    os.close(STDIN_PIPE_READ_END_FD)
+    STDIN_PIPE_READ_END_FILEHANDLE.close()
     os.close(STDIN_PIPE_WRITE_END_FD)
-    os.close(OUTPUT_PIPE_READ_END_FD)
+    OUTPUT_PIPE_READ_END_FILEHANDLE.close()
     os.close(OUTPUT_PIPE_WRITE_END_FD)
 
-    STDIN_PIPE_READ_END_FD   = None
+    STDIN_PIPE_READ_END_FILEHANDLE   = None
     STDIN_PIPE_WRITE_END_FD  = None
-    OUTPUT_PIPE_READ_END_FD  = None
+    OUTPUT_PIPE_READ_END_FILEHANDLE  = None
     OUTPUT_PIPE_WRITE_END_FD = None
 
     print("Ending the test...")
@@ -133,14 +133,14 @@ def make_move(move: str):
     global OUTPUT_FILE
     global output_lines
 
-    global STDIN_PIPE_READ_END_FD
+    global STDIN_PIPE_READ_END_FILEHANDLE
     global STDIN_PIPE_WRITE_END_FD
-    global OUTPUT_PIPE_READ_END_FD
+    global OUTPUT_PIPE_READ_END_FILEHANDLE
     global OUTPUT_PIPE_WRITE_END_FD
 
     os.write(STDIN_PIPE_WRITE_END_FD, move.encode('utf-8'))
     print(f"Successfully pushed the move into the pipe...")
-    last_line = OUTPUT_PIPE_READ_END_FD.readline()
+    last_line = OUTPUT_PIPE_READ_END_FILEHANDLE.readline()
     print(f"Successfully got the next line of output from the output pipe...")
     OUTPUT_FILE.write(last_line)
     print(f"Successfully wrote the next line of output to the output file....")
