@@ -149,7 +149,7 @@ def make_move(move: str):
 
     line = ""
     while True:
-        c = os.read(OUTPUT_PIPE_READ_END_FD, 1)
+        c = str(os.read(OUTPUT_PIPE_READ_END_FD, 1))
         if c == '\n' or c == '\r\n' or c == '\r' or c == '\x03' or c == '\x04' or c == '\x05' or c == '\x17' or c == '\x19':
             break
         else:
