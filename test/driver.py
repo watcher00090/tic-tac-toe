@@ -69,9 +69,9 @@ def start_new_test() -> int:
     print("Opened the read-end of the STDIN pipe successfully.")
     OUTPUT_PIPE_READ_END_FD  = os.open(OUTPUT_PIPE, os.O_RDONLY | os.O_NONBLOCK)
     print("Opened the read-end of the output pipe successfully.")
-    STDIN_PIPE_WRITE_END_FD  = os.open(STDIN_PIPE,  os.O_WRONLY)
+    STDIN_PIPE_WRITE_END_FD  = os.open(STDIN_PIPE,  os.O_WRONLY | os.O_NONBLOCK)
     print("Opened the write-end of the STDIN pipe successfully.")
-    OUTPUT_PIPE_WRITE_END_FD = os.open(OUTPUT_PIPE, os.O_WRONLY)
+    OUTPUT_PIPE_WRITE_END_FD = os.open(OUTPUT_PIPE, os.O_WRONLY | os.O_NONBLOCK)
     print("Opened the write-end of the output pipe successfully.")
 
     os.set_inheritable(STDIN_PIPE_READ_END_FD, True)
