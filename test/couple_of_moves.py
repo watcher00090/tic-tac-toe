@@ -1,35 +1,22 @@
-# Tests that the game outputs the correct first prompt as well 
-# as the correct prompt after Player One moves for the first time. 
-
 import driver
 import sys
 
-def print(s):
-    print(s, file=sys.stderr)
-
-# print("Starting a new test....")
+print("Starting a new test....")
 test_id = driver.start_new_test()
+print("Test has been started.")
 
+print("Making the first move...")
 driver.make_move("tl\n")
+print("Successfully made the first move!")
 
+print("Making the second move...")
 driver.make_move("tr\n")
+print("Successfully made the second move!")
 
+print("Making the third move...")
 driver.make_move("mi\n")
+print("Successfully made the third move!")
 
-# print("Passed driver.make_move....")
-
-# print("Passed second driver.get_last_output_line....")
-
-# if out != "Player one (X) moved to tl":
-#     print("TEST FAILED")
-#     print("Desired output:")
-#     print("Player one moved to: tl")
-#     print("Actual output:")
-#     print(out)
-
-# print("TEST PASSED")
+print("Ending the test now...")
 driver.end_test()
-
-# print("Passed driver.end_test....")
-
-# print("Test environment closed.")
+print("The test has been ended.")
