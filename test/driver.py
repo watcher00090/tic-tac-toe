@@ -31,8 +31,8 @@ class Unbuffered(object):
 # Ensure that stdout is unbuffered
 sys.stdout = Unbuffered(sys.stdout)
 
-STDIN_PIPE  = None
-OUTPUT_PIPE = None
+STDIN_PIPE  = "STDIN_PIPE"
+OUTPUT_PIPE = "OUTPUT_PIPE"
 
 STDIN_PIPE_READ_END_FD= None
 STDIN_PIPE_WRITE_END_FD= None
@@ -59,8 +59,8 @@ def start_new_test() -> int:
     OUTPUT_FILE = open(os.path.join(f"{ARTIFACTS_DATAPATH}", "errors.log"), mode = 'a') # Append to the file if it already exists
     OUTPUT_FILE.write(TEST_START_HEADER)
 
-    STDIN_PIPE  = os.mkfifo("STDIN_PIPE")
-    OUTPUT_PIPE = os.mkfifo("OUTPUT_PIPE")
+    os.mkfifo("STDIN_PIPE")
+    os.mkfifo("OUTPUT_PIPE")
 
     STDIN_PIPE_READ_END_FD  = os.open(STDIN_PIPE, os.O_RDONLY)
     STDIN_PIPE_WRITE_END_FD = os.open(STDIN_PIPE, os.O_WRONLY)
