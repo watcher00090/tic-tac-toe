@@ -156,6 +156,8 @@ def get_last_output_line():
         return None
 
 def make_move(move: str):
+    print(f"Trying to make a move....")
+
     global OUTPUT_FILE
     global output_lines
 
@@ -171,6 +173,8 @@ def make_move(move: str):
     stderr_str = STDOUT_PIPE_READ_END_FILEHANDLE.readline()
     OUTPUT_FILE.write(stderr_str)
     OUTPUT_FILE.write(stdout_str)
+
+    print(f"Successfully made the move and wrote the results to the output file....")
 
         # stderr_chunks = stderr_str.splitlines()
         # stdout_chunks = stdout_str.splitlines()
