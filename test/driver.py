@@ -80,7 +80,7 @@ def start_new_test() -> int:
     tic_tac_toe_proc = subprocess.Popen(os.path.join(os.path.join(f"{CODE_PATH}", "bin"), "tic-tac-toe"), 
         stdin=STDIN_PIPE_READ_END_FILEHANDLE, 
         stdout=OUTPUT_PIPE_WRITE_END_FILEHANDLE, 
-        stderr=OUTPUT_PIPE_WRITE_END_FILEHANDLE, 
+        # stderr=OUTPUT_PIPE_WRITE_END_FILEHANDLE, 
         text=True
     )
     time.sleep(5)
