@@ -59,20 +59,16 @@ def start_new_test() -> int:
     OUTPUT_FILE = open(os.path.join(f"{ARTIFACTS_DATAPATH}", "errors.log"), mode = 'a') # Append to the file if it already exists
     OUTPUT_FILE.write(TEST_START_HEADER)
 
-    STDIN_PIPE = f"{ARTIFACTS_DATAPATH}/stdin_pipe"
-    OUTPUT_PIPE = f"{ARTIFACTS_DATAPATH}/output_pipe"
-    os.system(f"mkfifo {STDIN_PIPE}")
-    os.system(f"mkfifo {OUTPUT_PIPE}")
-    print("Created the pipes successfully.")
+    # STDIN_PIPE = f"{ARTIFACTS_DATAPATH}/stdin_pipe"
+    # OUTPUT_PIPE = f"{ARTIFACTS_DATAPATH}/output_pipe"
+    # os.system(f"mkfifo {STDIN_PIPE}")
+    # os.system(f"mkfifo {OUTPUT_PIPE}")
 
-    STDIN_PIPE_READ_END_FD   = os.open(STDIN_PIPE,  os.O_RDONLY | os.O_NONBLOCK)
-    print("Opened the read-end of the STDIN pipe successfully.")
-    OUTPUT_PIPE_READ_END_FD  = os.open(OUTPUT_PIPE, os.O_RDONLY | os.O_NONBLOCK)
-    print("Opened the read-end of the output pipe successfully.")
-    STDIN_PIPE_WRITE_END_FD  = os.open(STDIN_PIPE,  os.O_WRONLY | os.O_NONBLOCK)
-    print("Opened the write-end of the STDIN pipe successfully.")
-    OUTPUT_PIPE_WRITE_END_FD = os.open(OUTPUT_PIPE, os.O_WRONLY | os.O_NONBLOCK)
-    print("Opened the write-end of the output pipe successfully.")
+    STDIN_PIPE_READ_END_FD, STDIN_PIPE_WRITE_END_FD    = os.pipe()
+    print("Created the STDIN pipe successfully.")
+    OUTPUT_PIPE_READ_END_FD, OUTPUT_PIPE_WRITE_END_FD  = os.pipe()
+    print("Created the output pipe successfully.")
+    print("Created the pipes successfully.")
 
     os.set_inheritable(STDIN_PIPE_READ_END_FD, True)
     os.set_inheritable(STDIN_PIPE_WRITE_END_FD, True)
