@@ -65,15 +65,15 @@ def start_new_test() -> int:
     os.system(f"mkfifo {OUTPUT_PIPE}")
     print("Created the pipes successfully.")
 
-    STDIN_PIPE_READ_END_FD  = os.open(STDIN_PIPE, os.O_NONBLOCK | os.O_RDONLY)
-    print("Opened the read-end of the STDIN pipe successfully.")
-    STDIN_PIPE_WRITE_END_FD = os.open(STDIN_PIPE, os.O_WRONLY)
+    STDIN_PIPE_WRITE_END_FD  = os.open(STDIN_PIPE,  os.O_WRONLY)
     print("Opened the write-end of the STDIN pipe successfully.")
-    OUTPUT_PIPE_READ_END_FD = os.open(OUTPUT_PIPE, os.O_NONBLOCK | os.O_RDONLY)
-    print("Opened the read-end of the output pipe successfully.")
-    OUTPUT_PIPE_WRITE_END_FD= os.open(OUTPUT_PIPE, os.O_WRONLY)
+    OUTPUT_PIPE_WRITE_END_FD = os.open(OUTPUT_PIPE, os.O_WRONLY)
     print("Opened the write-end of the output pipe successfully.")
-    
+    STDIN_PIPE_READ_END_FD   = os.open(STDIN_PIPE,  os.O_RDONLY)
+    print("Opened the read-end of the STDIN pipe successfully.")
+    OUTPUT_PIPE_READ_END_FD  = os.open(OUTPUT_PIPE, os.O_RDONLY)
+    print("Opened the read-end of the output pipe successfully.")
+
     os.set_inheritable(STDIN_PIPE_READ_END_FD, True)
     os.set_inheritable(STDIN_PIPE_WRITE_END_FD, True)
     os.set_inheritable(OUTPUT_PIPE_READ_END_FD, True)
@@ -102,9 +102,9 @@ def end_test():
 
     print("Closing the input and output pipes for the tic-tac-toe process...")
 
-    STDIN_PIPE_READ_END_FD.close()
+    os.close(STDIN_PIPE_READ_END_FD)
     os.close(STDIN_PIPE_WRITE_END_FD)
-    OUTPUT_PIPE_READ_END_FD.close()
+    os.close(OUTPUT_PIPE_READ_END_FD)
     os.close(OUTPUT_PIPE_WRITE_END_FD)
 
     STDIN_PIPE_READ_END_FD   = None
@@ -145,7 +145,6 @@ def make_move(move: str):
 
     os.write(STDIN_PIPE_WRITE_END_FD, move.encode('utf-8'))
     print(f"Successfully pushed the move into the pipe...")
-    time.sleep(1)
 
     line = ""
     while True:
@@ -167,3 +166,4 @@ def make_move(move: str):
         #     output_lines.append(stderr_chunk)
         # for stdout_chunk in stdout_chunks:
         #     output_lines.append(stdout_chunk)
+
