@@ -69,7 +69,7 @@ def start_new_test() -> int:
     print("Opened the read-end of the STDIN pipe successfully.")
     STDIN_PIPE_WRITE_END_FD = os.open(STDIN_PIPE, os.O_WRONLY)
     print("Opened the write-end of the STDIN pipe successfully.")
-    OUTPUT_PIPE_READ_END_FILEHANDLE = open(OUTPUT_PIPE, os.O_NONBLOCK | os.O_RDONLY)
+    OUTPUT_PIPE_READ_END_FILEHANDLE = os.open(OUTPUT_PIPE, os.O_NONBLOCK | os.O_RDONLY)
     print("Opened the read-end of the output pipe successfully.")
     OUTPUT_PIPE_WRITE_END_FD= os.open(OUTPUT_PIPE, os.O_WRONLY)
     print("Opened the write-end of the output pipe successfully.")
