@@ -88,7 +88,7 @@ def start_new_test() -> int:
 
     tic_tac_toe_binary_path = os.path.join(os.path.join(f"{CODE_PATH}", "bin"), "tic-tac-toe")
 
-    tic_tac_toe_proc = subprocess.Popen(f"{tic_tac_toe_binary_path} | tee -a {OUTPUT_FILE}", 
+    tic_tac_toe_proc = subprocess.Popen(f"{tic_tac_toe_binary_path}", 
         stdin=STDIN_PIPE_READ_END_FD, 
         stdout=OUTPUT_PIPE_WRITE_END_FD, 
         # stderr=OUTPUT_PIPE_WRITE_END_FILEHANDLE, 
